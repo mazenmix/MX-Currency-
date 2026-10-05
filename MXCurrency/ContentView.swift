@@ -18,34 +18,34 @@ struct ContentView: View {
     private var refreshKey: String { "\(from.code)-\(to.code)" }
 
     var body: some View {
-        GeometryReader { geometry in
-            let keypadHeight = min(max(420, geometry.size.height * 0.54), 520)
+        GeometryReader { geo in
+            let screenHeight = geo.size.height
+            let headerHeight = screenHeight * 0.125
+            let amountHeight = screenHeight * 0.115
+            let currencyHeight = screenHeight * 0.090
+            let keypadHeight = screenHeight * 0.585
+            let footerHeight = screenHeight * 0.085
 
-            ZStack {
-                Color.black.ignoresSafeArea()
+            VStack(spacing: 0) {
+                header(topInset: geo.safeAreaInsets.top)
+                    .frame(height: headerHeight)
 
-                VStack(spacing: 0) {
-                    header
-                        .padding(.horizontal, 18)
-                        .padding(.top, 12)
+                amountDisplay
+                    .frame(height: amountHeight)
 
-                    amountDisplay
-                        .padding(.top, 34)
+                currencyRow
+                    .frame(height: currencyHeight)
+                    .padding(.horizontal, 18)
 
-                    currencyRow
-                        .padding(.horizontal, 18)
-                        .padding(.top, 28)
-                        .padding(.bottom, 20)
+                keypad
+                    .frame(height: keypadHeight)
 
-                    keypad
-                        .frame(height: keypadHeight)
-
-                    footer
-                        .padding(.horizontal, 20)
-                        .padding(.top, 13)
-                        .padding(.bottom, 8)
-                }
+                footer
+                    .frame(height: footerHeight, alignment: .top)
             }
+            .frame(width: geo.size.width, height: screenHeight, alignment: .top)
+            .background(Color.black)
+            .ignoresSafeArea()
         }
         .sheet(isPresented: $showFromPicker) {
             CurrencyPickerView(title: "Starting Currency", selection: $from)
@@ -72,8 +72,8 @@ struct ContentView: View {
         }
     }
 
-    private var header: some View {
-        ZStack {
+    private func header(topInset: CGFloat) -> some View {
+        ZStack(alignment: .top) {
             HStack {
                 CircleIconButton(
                     systemName: favorites.contains(currentPair) ? "star.fill" : "star",
@@ -81,17 +81,21 @@ struct ContentView: View {
                 ) {
                     showFavorites = true
                 }
+
                 Spacer()
             }
+            .padding(.horizontal, 18)
+            .padding(.top, max(48, topInset - 4))
 
             Text(headerRateText)
                 .font(.system(size: 20, weight: .bold, design: .rounded))
-                .foregroundStyle(.white.opacity(0.95))
+                .foregroundStyle(.white.opacity(0.96))
                 .lineLimit(1)
                 .minimumScaleFactor(0.72)
-                .padding(.horizontal, 76)
+                .padding(.horizontal, 78)
+                .padding(.top, max(62, topInset + 8))
         }
-        .frame(height: 56)
+        .background(Color.black)
     }
 
     private var amountDisplay: some View {
@@ -111,6 +115,7 @@ struct ContentView: View {
         .lineLimit(1)
         .minimumScaleFactor(0.42)
         .padding(.horizontal, 28)
+        .background(Color.black)
     }
 
     private var currencyRow: some View {
@@ -124,6 +129,7 @@ struct ContentView: View {
 
             CurrencyButton(currency: to) { showToPicker = true }
         }
+        .background(Color.black)
     }
 
     private var keypad: some View {
@@ -202,10 +208,10 @@ struct ContentView: View {
     }
 
     private var footer: some View {
-        HStack {
+        HStack(alignment: .top) {
             Text("Last Updated: \(updatedTime)")
                 .font(.system(size: 15, weight: .regular, design: .rounded))
-                .foregroundStyle(.white.opacity(0.88))
+                .foregroundStyle(.white.opacity(0.90))
 
             Spacer()
 
@@ -216,6 +222,10 @@ struct ContentView: View {
             .foregroundStyle(Color(red: 0.10, green: 0.58, blue: 1.0))
             .buttonStyle(.plain)
         }
+        .padding(.horizontal, 20)
+        .padding(.top, 14)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(Color(white: 0.10))
     }
 
     private var headerRateText: String {
@@ -282,7 +292,7 @@ private struct CircleIconButton: View {
                 .foregroundStyle(accent)
                 .frame(width: 54, height: 54)
                 .background(Circle().fill(Color.white.opacity(0.10)))
-                .overlay(Circle().stroke(Color.white.opacity(0.10), lineWidth: 1))
+                .overlay(Circle().stroke(Color.white.opacity(0.11), lineWidth: 1))
         }
         .buttonStyle(.plain)
     }
@@ -366,12 +376,11 @@ struct CurrencyPickerView: View {
     @State private var search = ""
 
     private var filtered: [CurrencyInfo] {
-        if search.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return CurrencyCatalog.all
-        }
+        let query = search.trimmingCharacters(in: .whitespacesAndNewlines)
+        if query.isEmpty { return CurrencyCatalog.all }
         return CurrencyCatalog.all.filter {
-            $0.code.localizedCaseInsensitiveContains(search) ||
-            $0.name.localizedCaseInsensitiveContains(search)
+            $0.code.localizedCaseInsensitiveContains(query) ||
+            $0.name.localizedCaseInsensitiveContains(query)
         }
     }
 
@@ -435,46 +444,297 @@ struct FavoritesView: View {
     let currentPair: CurrencyPair
     let onSelect: (CurrencyPair) -> Void
 
+    @State private var showAddFavorite = false
+
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(favorites.pairs) { pair in
+            ZStack {
+                Color(white: 0.075).ignoresSafeArea()
+
+                if favorites.pairs.isEmpty {
+                    VStack(spacing: 13) {
+                        Image(systemName: "star")
+                            .font(.system(size: 42, weight: .light))
+                            .foregroundStyle(.secondary)
+                        Text("No Favorites")
+                            .font(.title3.weight(.semibold))
+                        Text("Tap + to add any currency pair.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                } else {
+                    List {
+                        ForEach(favorites.pairs) { pair in
+                            HStack(spacing: 6) {
+                                Button {
+                                    onSelect(pair)
+                                    dismiss()
+                                } label: {
+                                    FavoriteRow(pair: pair)
+                                        .environmentObject(rates)
+                                        .contentShape(Rectangle())
+                                }
+                                .buttonStyle(.plain)
+
+                                Button(role: .destructive) {
+                                    favorites.remove(pair)
+                                } label: {
+                                    Image(systemName: "trash")
+                                        .font(.system(size: 17, weight: .medium))
+                                        .foregroundStyle(.red)
+                                        .frame(width: 40, height: 40)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                            .padding(.vertical, 3)
+                            .listRowBackground(Color(white: 0.075))
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    favorites.remove(pair)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                        }
+                        .onDelete(perform: favorites.remove)
+                    }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                }
+            }
+            .navigationTitle("Favorites")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 18, weight: .bold))
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        onSelect(pair)
+                        showAddFavorite = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 19, weight: .bold))
+                    }
+                }
+            }
+        }
+        .presentationBackground(Color(white: 0.075))
+        .sheet(isPresented: $showAddFavorite) {
+            AddFavoriteView(initialPair: currentPair)
+                .environmentObject(favorites)
+                .environmentObject(rates)
+        }
+        .task {
+            await refreshFavoriteRates()
+        }
+        .onChange(of: favorites.pairs) { _ in
+            Task { await refreshFavoriteRates() }
+        }
+    }
+
+    private func refreshFavoriteRates() async {
+        let codes = Set(favorites.pairs.flatMap { [$0.from, $0.to] })
+        guard !codes.isEmpty else { return }
+        await rates.refresh(codes: codes)
+    }
+}
+
+private struct AddFavoriteView: View {
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var favorites: FavoritesStore
+    @EnvironmentObject private var rates: RateService
+
+    @State private var from: CurrencyInfo
+    @State private var to: CurrencyInfo
+    @State private var selectingFrom = false
+    @State private var selectingTo = false
+
+    init(initialPair: CurrencyPair) {
+        _from = State(initialValue: CurrencyCatalog.currency(initialPair.from))
+        _to = State(initialValue: CurrencyCatalog.currency(initialPair.to))
+    }
+
+    private var pair: CurrencyPair {
+        CurrencyPair(from: from.code, to: to.code)
+    }
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color(white: 0.075).ignoresSafeArea()
+
+                VStack(spacing: 18) {
+                    Text("Add a currency pair")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 20)
+
+                    HStack(spacing: 12) {
+                        FavoriteCurrencyChoice(currency: from, title: "From") {
+                            selectingFrom = true
+                        }
+
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 24, weight: .light))
+                            .foregroundStyle(.secondary)
+
+                        FavoriteCurrencyChoice(currency: to, title: "To") {
+                            selectingTo = true
+                        }
+                    }
+                    .padding(.horizontal, 18)
+
+                    Button {
+                        let old = from
+                        from = to
+                        to = old
+                    } label: {
+                        Label("Switch", systemImage: "arrow.triangle.2.circlepath")
+                            .font(.subheadline.weight(.semibold))
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button {
+                        favorites.add(pair)
+                        Task { await rates.refresh(codes: [from.code, to.code]) }
                         dismiss()
                     } label: {
-                        FavoriteRow(pair: pair)
-                            .environmentObject(rates)
+                        HStack {
+                            Image(systemName: favorites.contains(pair) ? "checkmark.circle.fill" : "star.fill")
+                            Text(favorites.contains(pair) ? "Already in Favorites" : "Add to Favorites")
+                        }
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 54)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .fill(favorites.contains(pair) || from.code == to.code ? Color.white.opacity(0.09) : Color.blue)
+                        )
+                        .foregroundStyle(.white)
                     }
                     .buttonStyle(.plain)
-                    .listRowBackground(Color.black)
+                    .disabled(favorites.contains(pair) || from.code == to.code)
+                    .padding(.horizontal, 18)
+
+                    Spacer()
                 }
-                .onDelete(perform: favorites.remove)
             }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
-            .background(Color.black)
-            .navigationTitle("Favorites")
+            .navigationTitle("Add Favorite")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button { dismiss() } label: { Image(systemName: "xmark") }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        favorites.add(currentPair)
-                    } label: {
-                        Image(systemName: "plus")
+            }
+        }
+        .sheet(isPresented: $selectingFrom) {
+            FavoriteCurrencyPicker(title: "Starting Currency", selection: $from)
+        }
+        .sheet(isPresented: $selectingTo) {
+            FavoriteCurrencyPicker(title: "Ending Currency", selection: $to)
+        }
+        .presentationBackground(Color(white: 0.075))
+    }
+}
+
+private struct FavoriteCurrencyChoice: View {
+    let currency: CurrencyInfo
+    let title: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Text(title.uppercased())
+                    .font(.caption2.weight(.bold))
+                    .foregroundStyle(.secondary)
+                Text(currency.flag)
+                    .font(.system(size: 38))
+                Text(currency.code)
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(.white)
+                Text(currency.name)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 150)
+            .background(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(Color.white.opacity(0.07))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(Color.white.opacity(0.07), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private struct FavoriteCurrencyPicker: View {
+    @Environment(\.dismiss) private var dismiss
+    let title: String
+    @Binding var selection: CurrencyInfo
+    @State private var search = ""
+
+    private var filtered: [CurrencyInfo] {
+        let query = search.trimmingCharacters(in: .whitespacesAndNewlines)
+        if query.isEmpty { return CurrencyCatalog.all }
+        return CurrencyCatalog.all.filter {
+            $0.code.localizedCaseInsensitiveContains(query) ||
+            $0.name.localizedCaseInsensitiveContains(query)
+        }
+    }
+
+    var body: some View {
+        NavigationStack {
+            List(filtered) { currency in
+                Button {
+                    selection = currency
+                    dismiss()
+                } label: {
+                    HStack(spacing: 14) {
+                        Text(currency.flag)
+                            .font(.system(size: 30))
+                            .frame(width: 42)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(currency.name)
+                                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                                .foregroundStyle(.white)
+                            Text(currency.code)
+                                .font(.system(size: 15, weight: .medium, design: .rounded))
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        if selection.code == currency.code {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.blue)
+                        }
                     }
-                    .disabled(favorites.contains(currentPair))
+                    .padding(.vertical, 4)
+                }
+                .buttonStyle(.plain)
+                .listRowBackground(Color.black)
+            }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .background(Color.black)
+            .searchable(text: $search, prompt: "Search for currency…")
+            .navigationTitle(title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button { dismiss() } label: { Image(systemName: "xmark") }
                 }
             }
         }
         .presentationBackground(Color.black)
-        .task {
-            let codes = Set(favorites.pairs.flatMap { [$0.from, $0.to] })
-            await rates.refresh(codes: codes)
-        }
     }
 }
 
@@ -486,7 +746,7 @@ private struct FavoriteRow: View {
         HStack(spacing: 14) {
             Text(CurrencyCatalog.flag(for: pair.to))
                 .font(.system(size: 31))
-                .frame(width: 42)
+                .frame(width: 44)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(rateText)
@@ -508,8 +768,8 @@ private struct FavoriteRow: View {
         }
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
+        formatter.maximumFractionDigits = rate >= 100 ? 0 : 3
         formatter.minimumFractionDigits = 0
-        formatter.maximumFractionDigits = 0
         formatter.usesGroupingSeparator = true
         let value = formatter.string(from: NSNumber(value: rate)) ?? "—"
         return "1 \(pair.from) → \(value) \(pair.to)"
@@ -521,30 +781,84 @@ struct SettingsView: View {
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var certificateExpiration = MXCertificateInfo.expirationDate()
-    @State private var showSideStoreError = false
 
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(red: 0.085, green: 0.085, blue: 0.095).ignoresSafeArea()
+                Color(white: 0.075).ignoresSafeArea()
 
                 VStack(spacing: 0) {
-                    renewalCard
+                    TimelineView(.periodic(from: .now, by: 60)) { context in
+                        let status = renewalStatus(now: context.date)
+
+                        Button {
+                            openSideStore()
+                        } label: {
+                            HStack(spacing: 13) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.green.opacity(0.18))
+                                        .frame(width: 44, height: 44)
+                                    Image(systemName: "calendar.badge.clock")
+                                        .font(.system(size: 20, weight: .bold))
+                                        .foregroundStyle(.green)
+                                }
+
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text("Renew App")
+                                        .font(.headline)
+                                        .foregroundStyle(.white)
+                                    Text("Tap to open SideStore to renew")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+
+                                Spacer(minLength: 8)
+
+                                Text(status.text)
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundStyle(status.expired ? .red : .green)
+                                    .padding(.horizontal, 11)
+                                    .padding(.vertical, 7)
+                                    .background(
+                                        Capsule()
+                                            .fill((status.expired ? Color.red : Color.green).opacity(0.15))
+                                    )
+                                    .overlay(
+                                        Capsule()
+                                            .stroke((status.expired ? Color.red : Color.green).opacity(0.35), lineWidth: 1)
+                                    )
+
+                                Image(systemName: "chevron.right")
+                                    .font(.caption.bold())
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding(14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .fill(Color.white.opacity(0.07))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .stroke(Color.white.opacity(0.07), lineWidth: 1)
+                            )
+                        }
+                        .buttonStyle(.plain)
                         .padding(.horizontal, 18)
-                        .padding(.top, 28)
+                        .padding(.top, 26)
+                    }
 
                     Spacer()
 
-                    VStack(spacing: 7) {
+                    VStack(spacing: 6) {
                         Text("MX")
-                            .font(.system(size: 30, weight: .black, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.13))
-                            .italic()
+                            .font(.system(size: 25, weight: .black, design: .rounded))
+                            .foregroundStyle(.black)
                         Text("MazenmiX")
-                            .font(.system(size: 15, weight: .medium, design: .rounded))
+                            .font(.footnote.weight(.medium))
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.bottom, 54)
+                    .padding(.bottom, 44)
                 }
             }
             .navigationTitle("Settings")
@@ -553,15 +867,12 @@ struct SettingsView: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button { dismiss() } label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(.white)
-                            .frame(width: 46, height: 46)
-                            .background(Circle().fill(Color.white.opacity(0.10)))
+                            .font(.system(size: 18, weight: .bold))
                     }
                 }
             }
         }
-        .presentationBackground(Color.black)
+        .presentationBackground(Color(white: 0.075))
         .onAppear {
             certificateExpiration = MXCertificateInfo.expirationDate()
         }
@@ -570,119 +881,30 @@ struct SettingsView: View {
                 certificateExpiration = MXCertificateInfo.expirationDate()
             }
         }
-        .alert("SideStore", isPresented: $showSideStoreError) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text("SideStore could not be opened. Make sure SideStore is installed.")
-        }
-    }
-
-    private var renewalCard: some View {
-        TimelineView(.periodic(from: .now, by: 60)) { context in
-            let state = renewalState(now: context.date)
-
-            Button {
-                openSideStore()
-            } label: {
-                HStack(spacing: 13) {
-                    ZStack {
-                        Circle()
-                            .fill((state.expired ? Color.red : Color.green).opacity(0.18))
-                        Image(systemName: "calendar.badge.clock")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundStyle(state.expired ? Color.red : Color.green)
-                    }
-                    .frame(width: 46, height: 46)
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Renew App")
-                            .font(.system(size: 17, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
-                        Text(state.subtitle)
-                            .font(.system(size: 12, weight: .regular, design: .rounded))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
-
-                    Spacer(minLength: 8)
-
-                    Text(state.remaining)
-                        .font(.system(size: 13, weight: .bold, design: .rounded))
-                        .monospacedDigit()
-                        .foregroundStyle(state.expired ? Color.red : Color.green)
-                        .padding(.horizontal, 11)
-                        .padding(.vertical, 7)
-                        .background(
-                            Capsule()
-                                .fill((state.expired ? Color.red : Color.green).opacity(0.15))
-                        )
-                        .overlay(
-                            Capsule()
-                                .stroke((state.expired ? Color.red : Color.green).opacity(0.55), lineWidth: 1)
-                        )
-
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(.tertiary)
-                }
-                .padding(14)
-                .background(
-                    RoundedRectangle(cornerRadius: 19, style: .continuous)
-                        .fill(Color.white.opacity(0.075))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 19, style: .continuous)
-                        .stroke(Color.white.opacity(0.075), lineWidth: 1)
-                )
-            }
-            .buttonStyle(.plain)
-        }
-    }
-
-    private func renewalState(now: Date) -> RenewalState {
-        guard let expiration = certificateExpiration else {
-            return RenewalState(
-                remaining: "—",
-                subtitle: "Tap to open SideStore to renew",
-                expired: false
-            )
-        }
-
-        let seconds = expiration.timeIntervalSince(now)
-        guard seconds > 0 else {
-            return RenewalState(
-                remaining: "Expired",
-                subtitle: "Tap to open SideStore to renew",
-                expired: true
-            )
-        }
-
-        let totalHours = max(0, Int(seconds / 3600))
-        let days = totalHours / 24
-        let hours = totalHours % 24
-        let remaining = days > 0 ? "\(days)d \(hours)h" : "\(hours)h"
-
-        return RenewalState(
-            remaining: remaining,
-            subtitle: "Tap to open SideStore to renew",
-            expired: false
-        )
     }
 
     private func openSideStore() {
         guard let url = URL(string: "sidestore://") else { return }
-        UIApplication.shared.open(url, options: [:]) { opened in
-            if !opened {
-                DispatchQueue.main.async {
-                    showSideStoreError = true
-                }
-            }
-        }
+        UIApplication.shared.open(url)
     }
-}
 
-private struct RenewalState {
-    let remaining: String
-    let subtitle: String
-    let expired: Bool
+    private func renewalStatus(now: Date) -> (text: String, expired: Bool) {
+        guard let expiration = certificateExpiration else {
+            return ("—", false)
+        }
+
+        let remaining = expiration.timeIntervalSince(now)
+        if remaining <= 0 {
+            return ("Expired", true)
+        }
+
+        let totalHours = max(0, Int(remaining / 3600))
+        let days = totalHours / 24
+        let hours = totalHours % 24
+
+        if days > 0 {
+            return ("\(days)d \(hours)h left", false)
+        }
+        return ("\(hours)h left", false)
+    }
 }
