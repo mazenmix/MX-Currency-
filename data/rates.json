@@ -1,0 +1,40 @@
+{
+  "base": "USD",
+  "updatedAt": "2026-10-05T17:50:00Z",
+  "rates": {
+    "USD": 1.0,
+    "EUR": 0.934,
+    "GBP": 0.804,
+    "IQD": 1600.0,
+    "PHP": 62.699,
+    "IDR": 17905.0,
+    "TRY": 49.002,
+    "THB": 34.015,
+    "VND": 26003.0,
+    "AED": 3.673,
+    "SAR": 3.75,
+    "MYR": 4.712,
+    "SGD": 1.349,
+    "JPY": 149.31,
+    "AUD": 1.534,
+    "CAD": 1.39,
+    "CHF": 0.79,
+    "CNY": 7.12,
+    "HKD": 7.78,
+    "KRW": 1405.0,
+    "INR": 88.2,
+    "QAR": 3.64,
+    "KWD": 0.306,
+    "BHD": 0.376,
+    "OMR": 0.385
+  },
+  "meta": {
+    "IQD": {
+      "kind": "parallel",
+      "source": "Baghdad street · @dollariraqi",
+      "buy": 1595.0,
+      "sell": 1605.0,
+      "updatedAt": "2026-10-05T17:50:00Z"
+    }
+  }
+}
