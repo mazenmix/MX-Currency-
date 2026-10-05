@@ -1,6 +1,6 @@
 {
   "base": "USD",
-  "updatedAt": "2026-10-05T17:50:00Z",
+  "updatedAt": "2026-10-05T18:55:00Z",
   "rates": {
     "USD": 1.0,
     "EUR": 0.934,
@@ -26,7 +26,16 @@
     "QAR": 3.64,
     "KWD": 0.306,
     "BHD": 0.376,
-    "OMR": 0.385
+    "OMR": 0.385,
+    "ARS": 1540.0,
+    "IRR": 2687000.0,
+    "SYP": 13850.0,
+    "LBP": 89550.0,
+    "CUP": 780.0,
+    "DZD": 238.665,
+    "NGN": 1362.5,
+    "PKR": 278.05,
+    "ETB": 193.4
   },
   "meta": {
     "IQD": {
@@ -34,7 +43,70 @@
       "source": "Baghdad street · @dollariraqi",
       "buy": 1595.0,
       "sell": 1605.0,
-      "updatedAt": "2026-10-05T17:50:00Z"
+      "updatedAt": "2026-10-05T16:25:00+03:00"
+    },
+    "ARS": {
+      "kind": "parallel",
+      "source": "Argentina Blue · DolarApi",
+      "buy": 1530.0,
+      "sell": 1550.0,
+      "updatedAt": "2026-10-05T17:57:00.000Z"
+    },
+    "IRR": {
+      "kind": "free-market",
+      "source": "Iran free market · TGJU",
+      "buy": null,
+      "sell": null,
+      "updatedAt": "2026-10-05T18:55:00Z"
+    },
+    "SYP": {
+      "kind": "street",
+      "source": "Syria street · SP Today",
+      "buy": 13825.0,
+      "sell": 13875.0,
+      "updatedAt": "2026-10-05T18:55:00Z"
+    },
+    "LBP": {
+      "kind": "cash-market",
+      "source": "Lebanon cash · LBPRate",
+      "buy": 89400.0,
+      "sell": 89700.0,
+      "updatedAt": "2026-10-05T18:55:00Z"
+    },
+    "CUP": {
+      "kind": "informal",
+      "source": "Cuba informal · elTOQUE",
+      "buy": null,
+      "sell": null,
+      "updatedAt": "2026-10-05T18:55:00Z"
+    },
+    "DZD": {
+      "kind": "informal",
+      "source": "Algiers Square · ExchangeDZ",
+      "buy": 237.0,
+      "sell": 240.33,
+      "updatedAt": "2026-10-05T18:55:00Z"
+    },
+    "NGN": {
+      "kind": "parallel",
+      "source": "Nigeria black market · NGNRates",
+      "buy": 1355.0,
+      "sell": 1370.0,
+      "updatedAt": "2026-10-05T18:55:00Z"
+    },
+    "PKR": {
+      "kind": "open-market",
+      "source": "Pakistan open market · Forex.com.pk",
+      "buy": 278.0,
+      "sell": 278.1,
+      "updatedAt": "2026-10-05T18:55:00Z"
+    },
+    "ETB": {
+      "kind": "parallel",
+      "source": "Ethiopia parallel · EBM",
+      "buy": null,
+      "sell": null,
+      "updatedAt": "2026-10-05T18:55:00Z"
     }
   }
 }
