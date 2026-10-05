@@ -321,6 +321,13 @@ private struct KeyButton: View {
     let height: CGFloat
     let action: () -> Void
 
+    init(_ title: String, width: CGFloat, height: CGFloat, action: @escaping () -> Void) {
+        self.title = title
+        self.width = width
+        self.height = height
+        self.action = action
+    }
+
     var body: some View {
         Button(action: action) {
             Text(title)
