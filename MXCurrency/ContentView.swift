@@ -19,33 +19,28 @@ struct ContentView: View {
 
     var body: some View {
         GeometryReader { geo in
-            let screenHeight = geo.size.height
-            let headerHeight = screenHeight * 0.125
-            let amountHeight = screenHeight * 0.115
-            let currencyHeight = screenHeight * 0.090
-            let keypadHeight = screenHeight * 0.585
-            let footerHeight = screenHeight * 0.085
+            ZStack {
+                Color.black.ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                header(topInset: geo.safeAreaInsets.top)
-                    .frame(height: headerHeight)
+                VStack(spacing: 0) {
+                    header
+                        .frame(height: 76)
 
-                amountDisplay
-                    .frame(height: amountHeight)
+                    amountDisplay
+                        .frame(height: 108)
 
-                currencyRow
-                    .frame(height: currencyHeight)
-                    .padding(.horizontal, 18)
+                    currencyRow
+                        .frame(height: 88)
+                        .padding(.horizontal, 18)
 
-                keypad
-                    .frame(height: keypadHeight)
+                    keypad
+                        .frame(maxHeight: .infinity)
 
-                footer
-                    .frame(height: footerHeight, alignment: .top)
+                    footer
+                        .frame(height: 64)
+                }
+                .frame(width: geo.size.width, height: geo.size.height)
             }
-            .frame(width: geo.size.width, height: screenHeight, alignment: .top)
-            .background(Color.black)
-            .ignoresSafeArea()
         }
         .sheet(isPresented: $showFromPicker) {
             CurrencyPickerView(title: "Starting Currency", selection: $from)
@@ -72,8 +67,8 @@ struct ContentView: View {
         }
     }
 
-    private func header(topInset: CGFloat) -> some View {
-        ZStack(alignment: .top) {
+    private var header: some View {
+        ZStack {
             HStack {
                 CircleIconButton(
                     systemName: favorites.contains(currentPair) ? "star.fill" : "star",
@@ -81,19 +76,16 @@ struct ContentView: View {
                 ) {
                     showFavorites = true
                 }
-
                 Spacer()
             }
             .padding(.horizontal, 18)
-            .padding(.top, max(48, topInset - 4))
 
             Text(headerRateText)
                 .font(.system(size: 20, weight: .bold, design: .rounded))
                 .foregroundStyle(.white.opacity(0.96))
                 .lineLimit(1)
-                .minimumScaleFactor(0.72)
+                .minimumScaleFactor(0.68)
                 .padding(.horizontal, 78)
-                .padding(.top, max(62, topInset + 8))
         }
         .background(Color.black)
     }
@@ -105,16 +97,16 @@ struct ContentView: View {
 
             Text("=")
                 .foregroundStyle(.white.opacity(0.18))
-                .font(.system(size: 58, weight: .ultraLight, design: .rounded))
+                .font(.system(size: 56, weight: .ultraLight, design: .rounded))
 
             Text(displayOutput)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .font(.system(size: 58, weight: .ultraLight, design: .rounded))
+        .font(.system(size: 56, weight: .ultraLight, design: .rounded))
         .foregroundStyle(.white)
         .lineLimit(1)
-        .minimumScaleFactor(0.42)
-        .padding(.horizontal, 28)
+        .minimumScaleFactor(0.40)
+        .padding(.horizontal, 24)
         .background(Color.black)
     }
 
@@ -208,7 +200,7 @@ struct ContentView: View {
     }
 
     private var footer: some View {
-        HStack(alignment: .top) {
+        HStack {
             Text("Last Updated: \(updatedTime)")
                 .font(.system(size: 15, weight: .regular, design: .rounded))
                 .foregroundStyle(.white.opacity(0.90))
@@ -223,8 +215,7 @@ struct ContentView: View {
             .buttonStyle(.plain)
         }
         .padding(.horizontal, 20)
-        .padding(.top, 14)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(white: 0.10))
     }
 
@@ -329,13 +320,6 @@ private struct KeyButton: View {
     let width: CGFloat
     let height: CGFloat
     let action: () -> Void
-
-    init(_ title: String, width: CGFloat, height: CGFloat, action: @escaping () -> Void) {
-        self.title = title
-        self.width = width
-        self.height = height
-        self.action = action
-    }
 
     var body: some View {
         Button(action: action) {
@@ -444,7 +428,7 @@ struct FavoritesView: View {
     let currentPair: CurrencyPair
     let onSelect: (CurrencyPair) -> Void
 
-    @State private var showAddFavorite = false
+    @State private var showAddCurrency = false
 
     var body: some View {
         NavigationStack {
@@ -458,7 +442,7 @@ struct FavoritesView: View {
                             .foregroundStyle(.secondary)
                         Text("No Favorites")
                             .font(.title3.weight(.semibold))
-                        Text("Tap + to add any currency pair.")
+                        Text("Tap + and choose a currency.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -513,7 +497,7 @@ struct FavoritesView: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
-                        showAddFavorite = true
+                        showAddCurrency = true
                     } label: {
                         Image(systemName: "plus")
                             .font(.system(size: 19, weight: .bold))
@@ -522,8 +506,8 @@ struct FavoritesView: View {
             }
         }
         .presentationBackground(Color(white: 0.075))
-        .sheet(isPresented: $showAddFavorite) {
-            AddFavoriteView(initialPair: currentPair)
+        .sheet(isPresented: $showAddCurrency) {
+            FavoriteCurrencyAddList(baseCode: currentPair.from)
                 .environmentObject(favorites)
                 .environmentObject(rates)
         }
@@ -542,151 +526,19 @@ struct FavoritesView: View {
     }
 }
 
-private struct AddFavoriteView: View {
+private struct FavoriteCurrencyAddList: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var favorites: FavoritesStore
     @EnvironmentObject private var rates: RateService
 
-    @State private var from: CurrencyInfo
-    @State private var to: CurrencyInfo
-    @State private var selectingFrom = false
-    @State private var selectingTo = false
-
-    init(initialPair: CurrencyPair) {
-        _from = State(initialValue: CurrencyCatalog.currency(initialPair.from))
-        _to = State(initialValue: CurrencyCatalog.currency(initialPair.to))
-    }
-
-    private var pair: CurrencyPair {
-        CurrencyPair(from: from.code, to: to.code)
-    }
-
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                Color(white: 0.075).ignoresSafeArea()
-
-                VStack(spacing: 18) {
-                    Text("Add a currency pair")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                        .padding(.top, 20)
-
-                    HStack(spacing: 12) {
-                        FavoriteCurrencyChoice(currency: from, title: "From") {
-                            selectingFrom = true
-                        }
-
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 24, weight: .light))
-                            .foregroundStyle(.secondary)
-
-                        FavoriteCurrencyChoice(currency: to, title: "To") {
-                            selectingTo = true
-                        }
-                    }
-                    .padding(.horizontal, 18)
-
-                    Button {
-                        let old = from
-                        from = to
-                        to = old
-                    } label: {
-                        Label("Switch", systemImage: "arrow.triangle.2.circlepath")
-                            .font(.subheadline.weight(.semibold))
-                    }
-                    .buttonStyle(.bordered)
-
-                    Button {
-                        favorites.add(pair)
-                        Task { await rates.refresh(codes: [from.code, to.code]) }
-                        dismiss()
-                    } label: {
-                        HStack {
-                            Image(systemName: favorites.contains(pair) ? "checkmark.circle.fill" : "star.fill")
-                            Text(favorites.contains(pair) ? "Already in Favorites" : "Add to Favorites")
-                        }
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 54)
-                        .background(
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .fill(favorites.contains(pair) || from.code == to.code ? Color.white.opacity(0.09) : Color.blue)
-                        )
-                        .foregroundStyle(.white)
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(favorites.contains(pair) || from.code == to.code)
-                    .padding(.horizontal, 18)
-
-                    Spacer()
-                }
-            }
-            .navigationTitle("Add Favorite")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button { dismiss() } label: { Image(systemName: "xmark") }
-                }
-            }
-        }
-        .sheet(isPresented: $selectingFrom) {
-            FavoriteCurrencyPicker(title: "Starting Currency", selection: $from)
-        }
-        .sheet(isPresented: $selectingTo) {
-            FavoriteCurrencyPicker(title: "Ending Currency", selection: $to)
-        }
-        .presentationBackground(Color(white: 0.075))
-    }
-}
-
-private struct FavoriteCurrencyChoice: View {
-    let currency: CurrencyInfo
-    let title: String
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                Text(title.uppercased())
-                    .font(.caption2.weight(.bold))
-                    .foregroundStyle(.secondary)
-                Text(currency.flag)
-                    .font(.system(size: 38))
-                Text(currency.code)
-                    .font(.title3.weight(.bold))
-                    .foregroundStyle(.white)
-                Text(currency.name)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 150)
-            .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(Color.white.opacity(0.07))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(Color.white.opacity(0.07), lineWidth: 1)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-private struct FavoriteCurrencyPicker: View {
-    @Environment(\.dismiss) private var dismiss
-    let title: String
-    @Binding var selection: CurrencyInfo
+    let baseCode: String
     @State private var search = ""
 
     private var filtered: [CurrencyInfo] {
         let query = search.trimmingCharacters(in: .whitespacesAndNewlines)
-        if query.isEmpty { return CurrencyCatalog.all }
-        return CurrencyCatalog.all.filter {
+        let all = CurrencyCatalog.all.filter { $0.code != baseCode }
+        if query.isEmpty { return all }
+        return all.filter {
             $0.code.localizedCaseInsensitiveContains(query) ||
             $0.name.localizedCaseInsensitiveContains(query)
         }
@@ -695,14 +547,20 @@ private struct FavoriteCurrencyPicker: View {
     var body: some View {
         NavigationStack {
             List(filtered) { currency in
+                let pair = CurrencyPair(from: baseCode, to: currency.code)
                 Button {
-                    selection = currency
-                    dismiss()
+                    if favorites.contains(pair) {
+                        favorites.remove(pair)
+                    } else {
+                        favorites.add(pair)
+                        Task { await rates.refresh(codes: [baseCode, currency.code]) }
+                    }
                 } label: {
                     HStack(spacing: 14) {
                         Text(currency.flag)
                             .font(.system(size: 30))
                             .frame(width: 42)
+
                         VStack(alignment: .leading, spacing: 2) {
                             Text(currency.name)
                                 .font(.system(size: 18, weight: .semibold, design: .rounded))
@@ -711,11 +569,12 @@ private struct FavoriteCurrencyPicker: View {
                                 .font(.system(size: 15, weight: .medium, design: .rounded))
                                 .foregroundStyle(.secondary)
                         }
+
                         Spacer()
-                        if selection.code == currency.code {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(.blue)
-                        }
+
+                        Image(systemName: favorites.contains(pair) ? "checkmark.circle.fill" : "plus.circle")
+                            .font(.system(size: 22, weight: .semibold))
+                            .foregroundStyle(favorites.contains(pair) ? .green : .blue)
                     }
                     .padding(.vertical, 4)
                 }
@@ -725,8 +584,8 @@ private struct FavoriteCurrencyPicker: View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
             .background(Color.black)
-            .searchable(text: $search, prompt: "Search for currency…")
-            .navigationTitle(title)
+            .searchable(text: $search, prompt: "Search currency…")
+            .navigationTitle("Add Favorite")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
