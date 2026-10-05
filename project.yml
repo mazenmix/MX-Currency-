@@ -1,0 +1,38 @@
+name: MXCurrency
+options:
+  bundleIdPrefix: com.mazenmix
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  base:
+    SWIFT_VERSION: 5.9
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 1.0.0
+targets:
+  MXCurrency:
+    type: application
+    platform: iOS
+    sources:
+      - path: MXCurrency
+    resources:
+      - path: MXCurrency/Assets.xcassets
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mazenmix.mxcurrency
+        PRODUCT_NAME: "MX Currency"
+        INFOPLIST_KEY_CFBundleDisplayName: "MX Currency"
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIStatusBarStyle: UIStatusBarStyleLightContent
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""
+    info:
+      path: MXCurrency/Info.plist
+      properties:
+        CFBundleName: "MX Currency"
+        CFBundleDisplayName: "MX Currency"
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
