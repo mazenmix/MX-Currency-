@@ -12,9 +12,24 @@ final class RateService: ObservableObject {
     private let remoteBookURL = URL(string: "https://raw.githubusercontent.com/mazenmix/MX-Currency-/main/data/rates.json")!
     private let fallbackURL = URL(string: "https://open.er-api.com/v6/latest/USD")!
 
+    private static let streetKinds: Set<String> = [
+        "parallel", "street", "informal", "open-market", "cash-market", "free-market"
+    ]
+
+    // All stored values are units of currency per 1 USD.
+    // When a real cash/parallel quote has a spread:
+    // - USD -> local uses dealer BUY (the exchanger buys the user's USD).
+    // - local -> USD uses dealer SELL (the user buys USD from the exchanger).
+    // - local A -> local B crosses through USD using A ask and B bid.
     func rate(from: String, to: String) -> Double? {
-        guard let fromRate = rates[from], let toRate = rates[to], fromRate > 0 else { return nil }
-        return toRate / fromRate
+        if from == to { return 1 }
+        guard let fromMid = rates[from], let toMid = rates[to], fromMid > 0, toMid > 0 else { return nil }
+
+        let sourceAsk = meta[from]?.sell ?? fromMid
+        let targetBid = meta[to]?.buy ?? toMid
+        guard sourceAsk > 0, targetBid > 0 else { return nil }
+
+        return targetBid / sourceAsk
     }
 
     func convert(_ amount: Double, from: String, to: String) -> Double? {
@@ -23,21 +38,36 @@ final class RateService: ObservableObject {
     }
 
     func pairKind(from: String, to: String) -> String {
-        if meta[from]?.kind == "parallel" || meta[to]?.kind == "parallel" {
-            return "Parallel Market"
+        if isStreetBacked(from) || isStreetBacked(to) {
+            return "Street Market"
         }
         if meta[from]?.kind == "live-market" || meta[to]?.kind == "live-market" {
-            return "Live Market"
+            return "Live FX"
         }
         return "Market"
     }
 
     func pairSource(from: String, to: String) -> String? {
-        if let item = meta[to], item.kind == "parallel" { return item.source }
-        if let item = meta[from], item.kind == "parallel" { return item.source }
-        if let item = meta[to], item.kind == "live-market" { return item.source }
-        if let item = meta[from], item.kind == "live-market" { return item.source }
+        var streetSources: [String] = []
+        var liveSources: [String] = []
+
+        for code in [from, to] {
+            guard let item = meta[code] else { continue }
+            if Self.streetKinds.contains(item.kind.lowercased()) {
+                if !streetSources.contains(item.source) { streetSources.append(item.source) }
+            } else if item.kind == "live-market" {
+                if !liveSources.contains(item.source) { liveSources.append(item.source) }
+            }
+        }
+
+        if !streetSources.isEmpty { return streetSources.joined(separator: " • ") }
+        if !liveSources.isEmpty { return liveSources.joined(separator: " • ") }
         return nil
+    }
+
+    private func isStreetBacked(_ code: String) -> Bool {
+        guard let kind = meta[code]?.kind.lowercased() else { return false }
+        return Self.streetKinds.contains(kind)
     }
 
     func refresh(codes: Set<String>) async {
@@ -45,13 +75,18 @@ final class RateService: ObservableObject {
         isRefreshing = true
         defer { isRefreshing = false }
 
-        if lastBaseRefresh == nil || Date().timeIntervalSince(lastBaseRefresh!) > 900 {
+        // rates.json is refreshed by GitHub Actions every 5 minutes.
+        if lastBaseRefresh == nil || Date().timeIntervalSince(lastBaseRefresh!) > 300 {
             await loadBaseRates()
             lastBaseRefresh = Date()
         }
 
+        // Yahoo is only the live-FX fallback for currencies that do NOT have a
+        // verified street/open-market source in the remote rate book.
         let liveCodes = codes
-            .filter { $0 != "USD" && $0 != "IQD" && $0 != "ARS" }
+            .filter { code in
+                code != "USD" && code != "IQD" && code != "ARS" && !isStreetBacked(code)
+            }
             .prefix(20)
 
         let liveResults = await withTaskGroup(of: (String, Double?).self, returning: [(String, Double?)].self) { group in
@@ -78,6 +113,7 @@ final class RateService: ObservableObject {
             }
         }
 
+        // Iraq and Argentina also refresh directly in-app for extra freshness.
         if codes.contains("IQD"), let quote = await Self.fetchIraqParallel() {
             rates["IQD"] = quote.mid
             meta["IQD"] = RateMeta(
@@ -104,7 +140,15 @@ final class RateService: ObservableObject {
     }
 
     private func loadBaseRates() async {
-        if let data = try? await Self.fetchData(from: remoteBookURL),
+        // Cache-bust raw.githubusercontent so the app sees the newest 5-minute book.
+        var freshRemoteURL = remoteBookURL
+        if var components = URLComponents(url: remoteBookURL, resolvingAgainstBaseURL: false) {
+            let bucket = Int(Date().timeIntervalSince1970 / 300)
+            components.queryItems = [URLQueryItem(name: "v", value: String(bucket))]
+            freshRemoteURL = components.url ?? remoteBookURL
+        }
+
+        if let data = try? await Self.fetchData(from: freshRemoteURL),
            let book = try? JSONDecoder().decode(RateBook.self, from: data),
            book.base == "USD" {
             rates.merge(book.rates) { _, new in new }
@@ -217,7 +261,6 @@ final class RateService: ObservableObject {
         let normalized = raw.replacingOccurrences(of: ",", with: ".")
         let pieces = normalized.split(separator: ".")
         if pieces.count == 2,
-           let whole = Double(pieces[0]),
            pieces[0].count == 3,
            pieces[1].count == 3,
            let combined = Double(String(pieces[0]) + String(pieces[1])) {
