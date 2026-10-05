@@ -2,7 +2,7 @@ name: MXCurrency
 options:
   bundleIdPrefix: com.mazenmix
   deploymentTarget:
-    iOS: "16.0"
+    iOS: "16.4"
 settings:
   base:
     SWIFT_VERSION: 5.9
