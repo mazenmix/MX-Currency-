@@ -1,0 +1,78 @@
+name: Build MX Currency IPA
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "data/rates.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mx-currency-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          brew install xcodegen
+          python3 -m pip install --break-system-packages pillow
+
+      - name: Generate MazenmiX icon
+        run: python3 scripts/generate_icon.py
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build unsigned iPhone app
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project MXCurrency.xcodeproj \
+            -scheme MXCurrency \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            clean build | tee build.log
+
+      - name: Package IPA
+        run: |
+          APP="build/DerivedData/Build/Products/Release-iphoneos/MX Currency.app"
+          if [ ! -d "$APP" ]; then
+            APP="build/DerivedData/Build/Products/Release-iphoneos/MXCurrency.app"
+          fi
+          test -d "$APP"
+          rm -rf Payload MX-Currency.ipa
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          zip -qry MX-Currency.ipa Payload
+          ls -lh MX-Currency.ipa
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MX-Currency-IPA
+          path: MX-Currency.ipa
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish latest IPA release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete mx-currency-latest --cleanup-tag -y || true
+          gh release create mx-currency-latest MX-Currency.ipa \
+            --title "MX Currency - Latest IPA" \
+            --notes "Unsigned IPA for sideloading/re-signing. Built automatically from main."
