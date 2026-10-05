@@ -1,9 +1,9 @@
 import SwiftUI
+import UIKit
 
 struct ContentView: View {
     @EnvironmentObject private var rates: RateService
     @EnvironmentObject private var favorites: FavoritesStore
-    @AppStorage("decimalPoints") private var decimalPoints = 0
 
     @State private var from = CurrencyCatalog.currency("USD")
     @State private var to = CurrencyCatalog.currency("PHP")
@@ -11,7 +11,6 @@ struct ContentView: View {
     @State private var showFromPicker = false
     @State private var showToPicker = false
     @State private var showFavorites = false
-    @State private var showLiveRates = false
     @State private var showSettings = false
 
     private var amount: Double { Double(amountText) ?? 0 }
@@ -20,22 +19,22 @@ struct ContentView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let keypadHeight = max(390, geometry.size.height * 0.54)
+            let keypadHeight = min(max(420, geometry.size.height * 0.54), 520)
 
             ZStack {
                 Color.black.ignoresSafeArea()
 
                 VStack(spacing: 0) {
                     header
-                        .padding(.horizontal, 28)
-                        .padding(.top, 10)
+                        .padding(.horizontal, 18)
+                        .padding(.top, 12)
 
                     amountDisplay
                         .padding(.top, 34)
 
                     currencyRow
-                        .padding(.horizontal, 20)
-                        .padding(.top, 30)
+                        .padding(.horizontal, 18)
+                        .padding(.top, 28)
                         .padding(.bottom, 20)
 
                     keypad
@@ -43,8 +42,8 @@ struct ContentView: View {
 
                     footer
                         .padding(.horizontal, 20)
-                        .frame(maxHeight: .infinity, alignment: .top)
-                        .padding(.top, 12)
+                        .padding(.top, 13)
+                        .padding(.bottom, 8)
                 }
             }
         }
@@ -62,10 +61,6 @@ struct ContentView: View {
             .environmentObject(rates)
             .environmentObject(favorites)
         }
-        .sheet(isPresented: $showLiveRates) {
-            LiveRatesView()
-                .environmentObject(rates)
-        }
         .sheet(isPresented: $showSettings) {
             SettingsView()
         }
@@ -78,45 +73,34 @@ struct ContentView: View {
     }
 
     private var header: some View {
-        HStack {
-            CircleIconButton(systemName: favorites.contains(currentPair) ? "star.fill" : "star", accent: favorites.contains(currentPair) ? .yellow : .white) {
-                showFavorites = true
-            }
-
-            Spacer()
-
-            VStack(spacing: 4) {
-                Text(headerRateText)
-                    .font(.system(size: 19, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.94))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-
-                HStack(spacing: 5) {
-                    Circle()
-                        .fill(rates.pairKind(from: from.code, to: to.code) == "Parallel Market" ? Color.orange : Color.green)
-                        .frame(width: 6, height: 6)
-                    Text(rates.pairKind(from: from.code, to: to.code))
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(.secondary)
+        ZStack {
+            HStack {
+                CircleIconButton(
+                    systemName: favorites.contains(currentPair) ? "star.fill" : "star",
+                    accent: favorites.contains(currentPair) ? .yellow : .white
+                ) {
+                    showFavorites = true
                 }
+                Spacer()
             }
 
-            Spacer()
-
-            CircleIconButton(systemName: "chart.bar.xaxis") {
-                showLiveRates = true
-            }
+            Text(headerRateText)
+                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .foregroundStyle(.white.opacity(0.95))
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+                .padding(.horizontal, 76)
         }
+        .frame(height: 56)
     }
 
     private var amountDisplay: some View {
-        HStack(spacing: 26) {
+        HStack(spacing: 22) {
             Text(displayInput)
                 .frame(maxWidth: .infinity, alignment: .trailing)
 
             Text("=")
-                .foregroundStyle(.white.opacity(0.24))
+                .foregroundStyle(.white.opacity(0.18))
                 .font(.system(size: 58, weight: .ultraLight, design: .rounded))
 
             Text(displayOutput)
@@ -125,113 +109,111 @@ struct ContentView: View {
         .font(.system(size: 58, weight: .ultraLight, design: .rounded))
         .foregroundStyle(.white)
         .lineLimit(1)
-        .minimumScaleFactor(0.45)
-        .padding(.horizontal, 24)
+        .minimumScaleFactor(0.42)
+        .padding(.horizontal, 28)
     }
 
     private var currencyRow: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 8) {
             CurrencyButton(currency: from) { showFromPicker = true }
 
             Image(systemName: "arrow.right")
-                .font(.system(size: 30, weight: .ultraLight))
-                .foregroundStyle(.white.opacity(0.72))
-                .frame(width: 34)
+                .font(.system(size: 29, weight: .ultraLight))
+                .foregroundStyle(.white.opacity(0.70))
+                .frame(width: 36)
 
             CurrencyButton(currency: to) { showToPicker = true }
         }
     }
 
     private var keypad: some View {
-        HStack(spacing: 1) {
-            VStack(spacing: 1) {
-                HStack(spacing: 1) {
-                    KeyButton("7") { append("7") }
-                    KeyButton("8") { append("8") }
-                    KeyButton("9") { append("9") }
-                }
-                HStack(spacing: 1) {
-                    KeyButton("4") { append("4") }
-                    KeyButton("5") { append("5") }
-                    KeyButton("6") { append("6") }
-                }
-                HStack(spacing: 1) {
-                    KeyButton("1") { append("1") }
-                    KeyButton("2") { append("2") }
-                    KeyButton("3") { append("3") }
-                }
-                HStack(spacing: 1) {
-                    KeyButton(".") { appendDecimal() }
-                    KeyButton("0", widthWeight: 2) { append("0") }
-                }
-            }
+        GeometryReader { geo in
+            let divider: CGFloat = 1
+            let actionWidth = geo.size.width * 0.25
+            let leftWidth = geo.size.width - actionWidth - divider
+            let keyWidth = (leftWidth - (divider * 2)) / 3
+            let rowHeight = (geo.size.height - (divider * 3)) / 4
 
-            VStack(spacing: 1) {
-                ActionKey(background: Color(red: 1.0, green: 0.20, blue: 0.20), foreground: .white, systemName: "trash") {
-                    amountText = ""
-                }
-                ActionKey(background: .white.opacity(0.94), foreground: .black, systemName: "delete.left") {
-                    backspace()
-                }
-                Button {
-                    let old = from
-                    from = to
-                    to = old
-                } label: {
-                    VStack(spacing: 8) {
-                        Image(systemName: "arrow.triangle.2.circlepath")
-                            .font(.system(size: 27, weight: .light))
-                        Text("Switch")
-                            .font(.system(size: 18, weight: .regular, design: .rounded))
+            HStack(spacing: divider) {
+                VStack(spacing: divider) {
+                    HStack(spacing: divider) {
+                        KeyButton("7", width: keyWidth, height: rowHeight) { append("7") }
+                        KeyButton("8", width: keyWidth, height: rowHeight) { append("8") }
+                        KeyButton("9", width: keyWidth, height: rowHeight) { append("9") }
                     }
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color(red: 0.19, green: 0.84, blue: 0.31))
+                    HStack(spacing: divider) {
+                        KeyButton("4", width: keyWidth, height: rowHeight) { append("4") }
+                        KeyButton("5", width: keyWidth, height: rowHeight) { append("5") }
+                        KeyButton("6", width: keyWidth, height: rowHeight) { append("6") }
+                    }
+                    HStack(spacing: divider) {
+                        KeyButton("1", width: keyWidth, height: rowHeight) { append("1") }
+                        KeyButton("2", width: keyWidth, height: rowHeight) { append("2") }
+                        KeyButton("3", width: keyWidth, height: rowHeight) { append("3") }
+                    }
+                    HStack(spacing: divider) {
+                        KeyButton(".", width: keyWidth, height: rowHeight) { appendDecimal() }
+                        KeyButton("0", width: keyWidth * 2 + divider, height: rowHeight) { append("0") }
+                    }
                 }
-                .buttonStyle(.plain)
+                .frame(width: leftWidth)
+
+                VStack(spacing: divider) {
+                    ActionKey(
+                        background: Color(red: 1.00, green: 0.20, blue: 0.20),
+                        foreground: .white,
+                        systemName: "trash",
+                        height: rowHeight
+                    ) {
+                        amountText = ""
+                    }
+
+                    ActionKey(
+                        background: Color(white: 0.96),
+                        foreground: .black,
+                        systemName: "delete.left",
+                        height: rowHeight
+                    ) {
+                        backspace()
+                    }
+
+                    Button {
+                        let previous = from
+                        from = to
+                        to = previous
+                    } label: {
+                        VStack(spacing: 8) {
+                            Image(systemName: "arrow.triangle.2.circlepath")
+                                .font(.system(size: 27, weight: .light))
+                            Text("Switch")
+                                .font(.system(size: 18, weight: .regular, design: .rounded))
+                        }
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color(red: 0.20, green: 0.84, blue: 0.31))
+                    }
+                    .buttonStyle(.plain)
+                    .frame(height: rowHeight * 2 + divider)
+                }
+                .frame(width: actionWidth)
             }
-            .frame(width: 112)
+            .background(Color.white.opacity(0.18))
         }
-        .background(Color.white.opacity(0.16))
     }
 
     private var footer: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    Circle()
-                        .fill(rates.isRefreshing ? Color.orange : Color.green)
-                        .frame(width: 8, height: 8)
-                    Text(rates.isRefreshing ? "Updating" : "Live")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(rates.isRefreshing ? .orange : .green)
-                }
-
-                Text("Last Updated: \(updatedTime)")
-                    .font(.system(size: 15, weight: .regular, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.82))
-
-                if let source = rates.pairSource(from: from.code, to: to.code) {
-                    Text(source)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-            }
+        HStack {
+            Text("Last Updated: \(updatedTime)")
+                .font(.system(size: 15, weight: .regular, design: .rounded))
+                .foregroundStyle(.white.opacity(0.88))
 
             Spacer()
 
-            Button {
+            Button("Settings") {
                 showSettings = true
-            } label: {
-                VStack(spacing: 4) {
-                    Image(systemName: "gearshape.fill")
-                        .font(.system(size: 18))
-                    Text("Settings")
-                        .font(.caption)
-                }
-                .foregroundStyle(Color(red: 0.10, green: 0.58, blue: 1.0))
             }
+            .font(.system(size: 15, weight: .semibold, design: .rounded))
+            .foregroundStyle(Color(red: 0.10, green: 0.58, blue: 1.0))
             .buttonStyle(.plain)
         }
     }
@@ -244,13 +226,12 @@ struct ContentView: View {
     }
 
     private var displayInput: String {
-        if amountText.isEmpty { return "0" }
-        return amountText
+        amountText.isEmpty ? "0" : amountText
     }
 
     private var displayOutput: String {
         guard let value = rates.convert(amount, from: from.code, to: to.code) else { return "—" }
-        return format(value, decimals: decimalPoints)
+        return format(value, decimals: 0)
     }
 
     private var updatedTime: String {
@@ -297,7 +278,7 @@ private struct CircleIconButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: systemName)
-                .font(.system(size: 24, weight: .medium))
+                .font(.system(size: 25, weight: .medium))
                 .foregroundStyle(accent)
                 .frame(width: 54, height: 54)
                 .background(Circle().fill(Color.white.opacity(0.10)))
@@ -335,12 +316,14 @@ private struct CurrencyButton: View {
 
 private struct KeyButton: View {
     let title: String
-    var widthWeight: CGFloat = 1
+    let width: CGFloat
+    let height: CGFloat
     let action: () -> Void
 
-    init(_ title: String, widthWeight: CGFloat = 1, action: @escaping () -> Void) {
+    init(_ title: String, width: CGFloat, height: CGFloat, action: @escaping () -> Void) {
         self.title = title
-        self.widthWeight = widthWeight
+        self.width = width
+        self.height = height
         self.action = action
     }
 
@@ -349,11 +332,10 @@ private struct KeyButton: View {
             Text(title)
                 .font(.system(size: 34, weight: .light, design: .rounded))
                 .foregroundStyle(.white)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(width: width, height: height)
                 .background(Color.black)
         }
         .buttonStyle(.plain)
-        .layoutPriority(widthWeight)
     }
 }
 
@@ -361,6 +343,7 @@ private struct ActionKey: View {
     let background: Color
     let foreground: Color
     let systemName: String
+    let height: CGFloat
     let action: () -> Void
 
     var body: some View {
@@ -372,6 +355,7 @@ private struct ActionKey: View {
                 .background(background)
         }
         .buttonStyle(.plain)
+        .frame(height: height)
     }
 }
 
@@ -382,7 +366,9 @@ struct CurrencyPickerView: View {
     @State private var search = ""
 
     private var filtered: [CurrencyInfo] {
-        if search.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return CurrencyCatalog.all }
+        if search.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return CurrencyCatalog.all
+        }
         return CurrencyCatalog.all.filter {
             $0.code.localizedCaseInsensitiveContains(search) ||
             $0.name.localizedCaseInsensitiveContains(search)
@@ -400,6 +386,7 @@ struct CurrencyPickerView: View {
                         Text(currency.flag)
                             .font(.system(size: 30))
                             .frame(width: 42)
+
                         VStack(alignment: .leading, spacing: 2) {
                             Text(currency.name)
                                 .font(.system(size: 18, weight: .semibold, design: .rounded))
@@ -408,7 +395,9 @@ struct CurrencyPickerView: View {
                                 .font(.system(size: 15, weight: .medium, design: .rounded))
                                 .foregroundStyle(.secondary)
                         }
+
                         Spacer()
+
                         if selection.code == currency.code {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundStyle(.blue)
@@ -426,10 +415,10 @@ struct CurrencyPickerView: View {
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Button { dismiss() } label: { Image(systemName: "xmark") }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button { dismiss() } label: { Image(systemName: "checkmark") }
                 }
             }
@@ -442,7 +431,6 @@ struct FavoritesView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var rates: RateService
     @EnvironmentObject private var favorites: FavoritesStore
-    @AppStorage("decimalPoints") private var decimalPoints = 0
 
     let currentPair: CurrencyPair
     let onSelect: (CurrencyPair) -> Void
@@ -455,7 +443,7 @@ struct FavoritesView: View {
                         onSelect(pair)
                         dismiss()
                     } label: {
-                        FavoriteRow(pair: pair, decimals: max(3, decimalPoints))
+                        FavoriteRow(pair: pair)
                             .environmentObject(rates)
                     }
                     .buttonStyle(.plain)
@@ -469,10 +457,10 @@ struct FavoritesView: View {
             .navigationTitle("Favorites")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Button { dismiss() } label: { Image(systemName: "xmark") }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         favorites.add(currentPair)
                     } label: {
@@ -493,7 +481,6 @@ struct FavoritesView: View {
 private struct FavoriteRow: View {
     @EnvironmentObject private var rates: RateService
     let pair: CurrencyPair
-    let decimals: Int
 
     var body: some View {
         HStack(spacing: 14) {
@@ -501,7 +488,7 @@ private struct FavoriteRow: View {
                 .font(.system(size: 31))
                 .frame(width: 42)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(rateText)
                     .font(.system(size: 18, weight: .medium, design: .rounded))
                     .foregroundStyle(.white)
@@ -509,6 +496,7 @@ private struct FavoriteRow: View {
                     .font(.system(size: 14, design: .rounded))
                     .foregroundStyle(.secondary)
             }
+
             Spacer()
         }
         .padding(.vertical, 7)
@@ -520,173 +508,181 @@ private struct FavoriteRow: View {
         }
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = decimals
         formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 0
+        formatter.usesGroupingSeparator = true
         let value = formatter.string(from: NSNumber(value: rate)) ?? "—"
         return "1 \(pair.from) → \(value) \(pair.to)"
     }
 }
 
-struct LiveRatesView: View {
-    @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var rates: RateService
-    @State private var search = ""
-
-    private var currencies: [CurrencyInfo] {
-        let base = CurrencyCatalog.all.filter { $0.code != "USD" && rates.rates[$0.code] != nil }
-        if search.isEmpty { return Array(base.prefix(60)) }
-        return base.filter {
-            $0.code.localizedCaseInsensitiveContains(search) || $0.name.localizedCaseInsensitiveContains(search)
-        }
-    }
-
-    var body: some View {
-        NavigationStack {
-            List(currencies) { currency in
-                HStack(spacing: 14) {
-                    Text(currency.flag)
-                        .font(.system(size: 28))
-                        .frame(width: 40)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(currency.code)
-                            .font(.system(size: 17, weight: .bold, design: .rounded))
-                        Text(currency.name)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text(value(currency.code))
-                            .font(.system(size: 17, weight: .semibold, design: .rounded))
-                        Text(rates.meta[currency.code]?.kind == "parallel" ? "PARALLEL" : "MARKET")
-                            .font(.system(size: 9, weight: .bold, design: .rounded))
-                            .foregroundStyle(rates.meta[currency.code]?.kind == "parallel" ? .orange : .green)
-                    }
-                }
-                .padding(.vertical, 4)
-                .listRowBackground(Color.black)
-            }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
-            .background(Color.black)
-            .searchable(text: $search, prompt: "Search currency…")
-            .navigationTitle("Live Rates")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button { dismiss() } label: { Image(systemName: "chevron.left") }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    if rates.isRefreshing { ProgressView() }
-                    else {
-                        Button {
-                            Task { await refreshVisible() }
-                        } label: {
-                            Image(systemName: "arrow.clockwise")
-                        }
-                    }
-                }
-            }
-        }
-        .presentationBackground(Color.black)
-        .task { await refreshVisible() }
-    }
-
-    private func value(_ code: String) -> String {
-        guard let number = rates.rates[code] else { return "—" }
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = number >= 100 ? 2 : 4
-        return formatter.string(from: NSNumber(value: number)) ?? "—"
-    }
-
-    private func refreshVisible() async {
-        let codes = Set(CurrencyCatalog.priority.prefix(20))
-        await rates.refresh(codes: codes)
-    }
-}
-
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("decimalPoints") private var decimalPoints = 0
+    @Environment(\.scenePhase) private var scenePhase
+
+    @State private var certificateExpiration = MXCertificateInfo.expirationDate()
+    @State private var showSideStoreError = false
 
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(red: 0.08, green: 0.08, blue: 0.09).ignoresSafeArea()
+                Color(red: 0.085, green: 0.085, blue: 0.095).ignoresSafeArea()
 
                 VStack(spacing: 0) {
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("General")
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 18)
-
-                        Menu {
-                            Picker("Decimal Points", selection: $decimalPoints) {
-                                ForEach(0...6, id: \.self) { number in
-                                    Text("\(number)").tag(number)
-                                }
-                            }
-                        } label: {
-                            HStack {
-                                Text("Decimal Points")
-                                    .foregroundStyle(.white)
-                                Spacer()
-                                Text("\(decimalPoints)")
-                                    .foregroundStyle(.secondary)
-                                Image(systemName: "chevron.right")
-                                    .font(.caption.bold())
-                                    .foregroundStyle(.secondary.opacity(0.65))
-                            }
-                            .font(.system(size: 18, weight: .medium, design: .rounded))
-                            .padding(.horizontal, 18)
-                            .frame(height: 62)
-                            .background(Color.white.opacity(0.08))
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .padding(.top, 34)
+                    renewalCard
+                        .padding(.horizontal, 18)
+                        .padding(.top, 28)
 
                     Spacer()
 
-                    VStack(spacing: 12) {
-                        MXBrandMark()
-                            .frame(width: 118, height: 78)
+                    VStack(spacing: 7) {
+                        Text("MX")
+                            .font(.system(size: 30, weight: .black, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.13))
+                            .italic()
                         Text("MazenmiX")
-                            .font(.system(size: 19, weight: .medium, design: .rounded))
-                            .foregroundStyle(.white)
+                            .font(.system(size: 15, weight: .medium, design: .rounded))
+                            .foregroundStyle(.secondary)
                     }
-                    .padding(.bottom, 70)
+                    .padding(.bottom, 54)
                 }
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button { dismiss() } label: { Image(systemName: "xmark") }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundStyle(.white)
+                            .frame(width: 46, height: 46)
+                            .background(Circle().fill(Color.white.opacity(0.10)))
+                    }
                 }
             }
         }
         .presentationBackground(Color.black)
+        .onAppear {
+            certificateExpiration = MXCertificateInfo.expirationDate()
+        }
+        .onChange(of: scenePhase) { phase in
+            if phase == .active {
+                certificateExpiration = MXCertificateInfo.expirationDate()
+            }
+        }
+        .alert("SideStore", isPresented: $showSideStoreError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("SideStore could not be opened. Make sure SideStore is installed.")
+        }
+    }
+
+    private var renewalCard: some View {
+        TimelineView(.periodic(from: .now, by: 60)) { context in
+            let state = renewalState(now: context.date)
+
+            Button {
+                openSideStore()
+            } label: {
+                HStack(spacing: 13) {
+                    ZStack {
+                        Circle()
+                            .fill((state.expired ? Color.red : Color.green).opacity(0.18))
+                        Image(systemName: "calendar.badge.clock")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundStyle(state.expired ? Color.red : Color.green)
+                    }
+                    .frame(width: 46, height: 46)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Renew App")
+                            .font(.system(size: 17, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                        Text(state.subtitle)
+                            .font(.system(size: 12, weight: .regular, design: .rounded))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+
+                    Spacer(minLength: 8)
+
+                    Text(state.remaining)
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(state.expired ? Color.red : Color.green)
+                        .padding(.horizontal, 11)
+                        .padding(.vertical, 7)
+                        .background(
+                            Capsule()
+                                .fill((state.expired ? Color.red : Color.green).opacity(0.15))
+                        )
+                        .overlay(
+                            Capsule()
+                                .stroke((state.expired ? Color.red : Color.green).opacity(0.55), lineWidth: 1)
+                        )
+
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(.tertiary)
+                }
+                .padding(14)
+                .background(
+                    RoundedRectangle(cornerRadius: 19, style: .continuous)
+                        .fill(Color.white.opacity(0.075))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 19, style: .continuous)
+                        .stroke(Color.white.opacity(0.075), lineWidth: 1)
+                )
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func renewalState(now: Date) -> RenewalState {
+        guard let expiration = certificateExpiration else {
+            return RenewalState(
+                remaining: "—",
+                subtitle: "Tap to open SideStore to renew",
+                expired: false
+            )
+        }
+
+        let seconds = expiration.timeIntervalSince(now)
+        guard seconds > 0 else {
+            return RenewalState(
+                remaining: "Expired",
+                subtitle: "Tap to open SideStore to renew",
+                expired: true
+            )
+        }
+
+        let totalHours = max(0, Int(seconds / 3600))
+        let days = totalHours / 24
+        let hours = totalHours % 24
+        let remaining = days > 0 ? "\(days)d \(hours)h" : "\(hours)h"
+
+        return RenewalState(
+            remaining: remaining,
+            subtitle: "Tap to open SideStore to renew",
+            expired: false
+        )
+    }
+
+    private func openSideStore() {
+        guard let url = URL(string: "sidestore://") else { return }
+        UIApplication.shared.open(url, options: [:]) { opened in
+            if !opened {
+                DispatchQueue.main.async {
+                    showSideStoreError = true
+                }
+            }
+        }
     }
 }
 
-private struct MXBrandMark: View {
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(Color.black)
-                .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(Color.white.opacity(0.14), lineWidth: 1))
-
-            HStack(spacing: -8) {
-                Text("M")
-                    .foregroundStyle(.white)
-                Text("X")
-                    .foregroundStyle(Color.orange)
-            }
-            .font(.system(size: 48, weight: .black, design: .rounded))
-            .italic()
-        }
-    }
+private struct RenewalState {
+    let remaining: String
+    let subtitle: String
+    let expired: Bool
 }
