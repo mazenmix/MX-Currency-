@@ -27,6 +27,9 @@ jobs:
           brew install xcodegen
           python3 -m pip install --break-system-packages pillow
 
+      - name: Apply latest UI layout
+        run: python3 scripts/patch_latest_ui.py
+
       - name: Generate MazenmiX icon
         run: python3 scripts/generate_icon.py
 
