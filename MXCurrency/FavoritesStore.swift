@@ -8,8 +8,7 @@ final class FavoritesStore: ObservableObject {
 
     init() {
         if let data = UserDefaults.standard.data(forKey: key),
-           let decoded = try? JSONDecoder().decode([CurrencyPair].self, from: data),
-           !decoded.isEmpty {
+           let decoded = try? JSONDecoder().decode([CurrencyPair].self, from: data) {
             pairs = decoded
         } else {
             pairs = [
@@ -38,8 +37,14 @@ final class FavoritesStore: ObservableObject {
     }
 
     func add(_ pair: CurrencyPair) {
-        guard !pairs.contains(pair) else { return }
+        guard pair.from != pair.to, !pairs.contains(pair) else { return }
         pairs.insert(pair, at: 0)
+        save()
+    }
+
+    func remove(_ pair: CurrencyPair) {
+        guard let index = pairs.firstIndex(of: pair) else { return }
+        pairs.remove(at: index)
         save()
     }
 
