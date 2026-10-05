@@ -1,0 +1,35 @@
+name: Update Market Rates
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mx-currency-rates
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Refresh market and parallel rates
+        run: python3 scripts/update_rates.py
+
+      - name: Commit fresh rates
+        run: |
+          if git diff --quiet -- data/rates.json; then
+            echo "No rate changes"
+            exit 0
+          fi
+          git config user.name "MX Currency Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/rates.json
+          git commit -m "Update live market rates"
+          git push
