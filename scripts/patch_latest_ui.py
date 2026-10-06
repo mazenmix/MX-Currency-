@@ -60,6 +60,10 @@ amount_replacement = '''    private var amountDisplay: some View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.20)
                 .allowsTightening(true)
+                .contentShape(Rectangle())
+                .onLongPressGesture(minimumDuration: 0.45) {
+                    copyConversionResult()
+                }
         }
         .font(.system(size: 49, weight: .ultraLight, design: .rounded))
         .monospacedDigit()
