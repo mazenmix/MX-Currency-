@@ -101,6 +101,10 @@ struct ContentView: View {
 
             Text(displayOutput)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onLongPressGesture(minimumDuration: 0.45) {
+                    copyConversionResult()
+                }
         }
         .font(.system(size: 56, weight: .ultraLight, design: .rounded))
         .foregroundStyle(.white)
@@ -269,6 +273,12 @@ struct ContentView: View {
         guard !amountText.isEmpty else { return }
         amountText.removeLast()
     }
+
+    private func copyConversionResult() {
+        guard displayOutput != "—" else { return }
+        UIPasteboard.general.string = displayOutput
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+    }
 }
 
 private struct CircleIconButton: View {
@@ -436,6 +446,7 @@ struct FavoritesView: View {
     let onSelect: (CurrencyPair) -> Void
 
     @State private var showAddCurrency = false
+    @State private var editMode: EditMode = .active
 
     var body: some View {
         NavigationStack {
@@ -487,9 +498,10 @@ struct FavoritesView: View {
                                 }
                             }
                         }
-                        .onDelete(perform: favorites.remove)
+                        .onMove(perform: favorites.move)
                     }
                     .listStyle(.plain)
+                    .environment(\.editMode, $editMode)
                     .scrollContentBackground(.hidden)
                 }
             }
