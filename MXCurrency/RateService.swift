@@ -23,6 +23,17 @@ final class RateService: ObservableObject {
 
     private let remoteBookURL = URL(string: "https://raw.githubusercontent.com/mazenmix/MX-Currency-/main/data/rates.json")!
     private let fallbackURL = URL(string: "https://open.er-api.com/v6/latest/USD")!
+    private static let mxDollarMarketURL = URL(string: "https://mxdollar.pages.dev/api/market")!
+
+    private struct MXDollarQuote: Decodable {
+        let buy: Double
+        let sell: Double
+    }
+
+    private struct MXDollarMarketResponse: Decodable {
+        let kifah: MXDollarQuote
+        let harithiya: MXDollarQuote
+    }
 
     private static let streetKinds: Set<String> = [
         "parallel", "street", "informal", "open-market", "cash-market", "free-market"
@@ -130,14 +141,17 @@ final class RateService: ObservableObject {
             }
         }
 
-        // Iraq and Argentina also refresh directly in-app for extra freshness.
-        if codes.contains("IQD"), let quote = await Self.fetchIraqParallel() {
-            rates["IQD"] = quote.mid
+        // IQD is sourced from the exact same live feed used by mxdollar.pages.dev.
+        // The website's headline price is the highest SELL quote across Al-Kifah
+        // and Al-Harithiya for each $100. MX Currency uses that exact headline
+        // value (divided by 100) so 100 USD matches the website one-for-one.
+        if codes.contains("IQD"), let quote = await Self.fetchMXDollarIraqRate() {
+            rates["IQD"] = quote.rate
             meta["IQD"] = RateMeta(
                 kind: "parallel",
-                source: "Baghdad street · @dollariraqi",
-                buy: quote.buy,
-                sell: quote.sell,
+                source: "MX Exchanger · Kifah / Harithiya",
+                buy: quote.rate,
+                sell: quote.rate,
                 updatedAt: ISO8601DateFormatter().string(from: Date())
             )
             didReceiveFreshData = true
@@ -176,9 +190,13 @@ final class RateService: ObservableObject {
         if let data = try? await Self.fetchData(from: freshRemoteURL),
            let book = try? JSONDecoder().decode(RateBook.self, from: data),
            book.base == "USD" {
-            rates.merge(book.rates) { _, new in new }
+            // IQD is intentionally excluded here. Its only live source inside the
+            // app is the same Al-Kifah / Al-Harithiya feed used by MX Exchanger.
+            let nonIQDRates = book.rates.filter { $0.key != "IQD" }
+            rates.merge(nonIQDRates) { _, new in new }
             if let incomingMeta = book.meta {
-                meta.merge(incomingMeta) { _, new in new }
+                let nonIQDMeta = incomingMeta.filter { $0.key != "IQD" }
+                meta.merge(nonIQDMeta) { _, new in new }
             }
             if let date = ISO8601DateFormatter().date(from: book.updatedAt) {
                 updatedAt = date
@@ -192,7 +210,8 @@ final class RateService: ObservableObject {
         if let data = try? await Self.fetchData(from: fallbackURL),
            let response = try? JSONDecoder().decode(OpenERResponse.self, from: data),
            response.result == "success" {
-            rates.merge(response.rates) { _, new in new }
+            let nonIQDRates = response.rates.filter { $0.key != "IQD" }
+            rates.merge(nonIQDRates) { _, new in new }
             updatedAt = Date()
             persistCachedSnapshot()
             return true
@@ -242,6 +261,34 @@ final class RateService: ObservableObject {
             let response = try JSONDecoder().decode(YahooChartResponse.self, from: data)
             guard let meta = response.chart.result?.first?.meta else { return nil }
             return meta.regularMarketPrice ?? meta.previousClose
+        } catch {
+            return nil
+        }
+    }
+
+    nonisolated private static func fetchMXDollarIraqRate() async -> (rate: Double, kifahSell: Double, harithiyaSell: Double)? {
+        do {
+            var request = URLRequest(url: mxDollarMarketURL)
+            request.timeoutInterval = 12
+            request.cachePolicy = .reloadIgnoringLocalCacheData
+            request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
+            request.setValue("application/json", forHTTPHeaderField: "Accept")
+            request.setValue("MX Currency iOS", forHTTPHeaderField: "User-Agent")
+
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let http = response as? HTTPURLResponse,
+                  (200...299).contains(http.statusCode) else {
+                return nil
+            }
+
+            let market = try JSONDecoder().decode(MXDollarMarketResponse.self, from: data)
+            guard market.kifah.sell > 0, market.harithiya.sell > 0 else { return nil }
+
+            let highestSellPer100 = max(market.kifah.sell, market.harithiya.sell)
+            let ratePerDollar = highestSellPer100 / 100.0
+            guard ratePerDollar > 0 else { return nil }
+
+            return (ratePerDollar, market.kifah.sell, market.harithiya.sell)
         } catch {
             return nil
         }
