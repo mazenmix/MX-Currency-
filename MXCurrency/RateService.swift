@@ -9,6 +9,18 @@ final class RateService: ObservableObject {
 
     private var lastBaseRefresh: Date?
 
+    private struct CachedSnapshot: Codable {
+        let rates: [String: Double]
+        let meta: [String: RateMeta]
+        let updatedAt: Date?
+    }
+
+    private static let cacheKey = "mx.currency.cachedRateSnapshot.v1"
+
+    init() {
+        restoreCachedSnapshot()
+    }
+
     private let remoteBookURL = URL(string: "https://raw.githubusercontent.com/mazenmix/MX-Currency-/main/data/rates.json")!
     private let fallbackURL = URL(string: "https://open.er-api.com/v6/latest/USD")!
 
@@ -75,9 +87,13 @@ final class RateService: ObservableObject {
         isRefreshing = true
         defer { isRefreshing = false }
 
+        var didReceiveFreshData = false
+
         // rates.json is refreshed by GitHub Actions every 5 minutes.
         if lastBaseRefresh == nil || Date().timeIntervalSince(lastBaseRefresh!) > 300 {
-            await loadBaseRates()
+            if await loadBaseRates() {
+                didReceiveFreshData = true
+            }
             lastBaseRefresh = Date()
         }
 
@@ -110,6 +126,7 @@ final class RateService: ObservableObject {
                     sell: nil,
                     updatedAt: ISO8601DateFormatter().string(from: Date())
                 )
+                didReceiveFreshData = true
             }
         }
 
@@ -123,6 +140,7 @@ final class RateService: ObservableObject {
                 sell: quote.sell,
                 updatedAt: ISO8601DateFormatter().string(from: Date())
             )
+            didReceiveFreshData = true
         }
 
         if codes.contains("ARS"), let quote = await Self.fetchArgentinaBlue() {
@@ -134,12 +152,19 @@ final class RateService: ObservableObject {
                 sell: quote.sell,
                 updatedAt: quote.updatedAt
             )
+            didReceiveFreshData = true
         }
 
-        updatedAt = Date()
+        // Never clear the previous book when the network is unavailable.
+        // A successful online refresh atomically replaces the persisted snapshot;
+        // an offline refresh simply keeps using the last known rates.
+        if didReceiveFreshData {
+            updatedAt = Date()
+            persistCachedSnapshot()
+        }
     }
 
-    private func loadBaseRates() async {
+    private func loadBaseRates() async -> Bool {
         // Cache-bust raw.githubusercontent so the app sees the newest 5-minute book.
         var freshRemoteURL = remoteBookURL
         if var components = URLComponents(url: remoteBookURL, resolvingAgainstBaseURL: false) {
@@ -157,8 +182,11 @@ final class RateService: ObservableObject {
             }
             if let date = ISO8601DateFormatter().date(from: book.updatedAt) {
                 updatedAt = date
+            } else {
+                updatedAt = Date()
             }
-            return
+            persistCachedSnapshot()
+            return true
         }
 
         if let data = try? await Self.fetchData(from: fallbackURL),
@@ -166,7 +194,32 @@ final class RateService: ObservableObject {
            response.result == "success" {
             rates.merge(response.rates) { _, new in new }
             updatedAt = Date()
+            persistCachedSnapshot()
+            return true
         }
+
+        // Both network sources failed. Keep the in-memory snapshot that was
+        // restored at launch; conversion remains fully functional offline.
+        return false
+    }
+
+    private func restoreCachedSnapshot() {
+        guard let data = UserDefaults.standard.data(forKey: Self.cacheKey),
+              let snapshot = try? JSONDecoder().decode(CachedSnapshot.self, from: data),
+              !snapshot.rates.isEmpty else {
+            return
+        }
+
+        rates = snapshot.rates
+        rates["USD"] = 1
+        meta = snapshot.meta
+        updatedAt = snapshot.updatedAt
+    }
+
+    private func persistCachedSnapshot() {
+        let snapshot = CachedSnapshot(rates: rates, meta: meta, updatedAt: updatedAt)
+        guard let data = try? JSONEncoder().encode(snapshot) else { return }
+        UserDefaults.standard.set(data, forKey: Self.cacheKey)
     }
 
     nonisolated private static func fetchData(from url: URL) async throws -> Data {
