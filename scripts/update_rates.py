@@ -108,10 +108,51 @@ def iraq_board_per_usd(raw: str):
 
 
 def fetch_iqd_parallel():
+    # Canonical Iraq source: the same live Harithiya/Kifah feed used by MX Dollar.
+    # Harithiya is the primary benchmark; Kifah is the fallback. The converter
+    # is intentionally keyed to the USD SELL board price requested for IQD.
+    try:
+        q = get_json("https://mxdollar.pages.dev/api/market")
+        for key, label in (("harithiya", "Harithiya"), ("kifah", "Kifah")):
+            board = q.get(key) or {}
+            buy100 = number(board.get("buy"))
+            sell100 = number(board.get("sell"))
+            if buy100 is None or sell100 is None:
+                continue
+            buy = buy100 / 100.0
+            sell = sell100 / 100.0
+            if valid_pair(buy, sell, 1000, 3000):
+                usd_meta = q.get("usd_meta") or {}
+                updated_at = usd_meta.get("published_at") or q.get("updated_at")
+                return quote(
+                    sell,
+                    f"Baghdad {label} board · @dollariraqi",
+                    buy=buy,
+                    sell=sell,
+                    updated_at=updated_at,
+                )
+    except Exception as exc:
+        print("IQD MX Dollar feed failed:", exc)
+
+    # Fallback: parse Telegram directly. Prefer board quotes first so a
+    # generic Baghdad cash quote can never override Harithiya/Kifah again.
     try:
         text = strip_html(get_text("https://t.me/s/dollariraqi"))
+
+        m = last_match(r"(?:كفاح|حارثية)\\s*([0-9,.]+)\\s*\\|\\s*([0-9,.]+)", text)
+        if m:
+            buy = iraq_board_per_usd(m.group(1))
+            sell = iraq_board_per_usd(m.group(2))
+            if valid_pair(buy, sell, 1000, 3000):
+                return quote(
+                    sell,
+                    "Baghdad Harithiya/Kifah board · @dollariraqi",
+                    buy=buy,
+                    sell=sell,
+                )
+
         m = last_match(
-            r"بغداد\s*-\s*صيرفات\s*:\s*([0-9,.]+)\s*بيع\s*-\s*([0-9,.]+)\s*شراء",
+            r"بغداد\\s*-\\s*صيرفات\\s*:\\s*([0-9,.]+)\\s*بيع\\s*-\\s*([0-9,.]+)\\s*شراء",
             text,
         )
         if m:
@@ -119,27 +160,14 @@ def fetch_iqd_parallel():
             buy = iraq_cash_per_usd(m.group(2))
             if valid_pair(buy, sell, 1000, 3000):
                 return quote(
-                    (buy + sell) / 2.0,
-                    "Baghdad street · @dollariraqi",
-                    buy=buy,
-                    sell=sell,
-                )
-
-        m = last_match(r"(?:كفاح|حارثية)\s*([0-9,.]+)\s*\|\s*([0-9,.]+)", text)
-        if m:
-            buy = iraq_board_per_usd(m.group(1))
-            sell = iraq_board_per_usd(m.group(2))
-            if valid_pair(buy, sell, 1000, 3000):
-                return quote(
-                    (buy + sell) / 2.0,
-                    "Baghdad parallel board · @dollariraqi",
+                    sell,
+                    "Baghdad street fallback · @dollariraqi",
                     buy=buy,
                     sell=sell,
                 )
     except Exception as exc:
-        print("IQD override failed:", exc)
+        print("IQD Telegram fallback failed:", exc)
     return None
-
 
 def fetch_ars_blue():
     try:
