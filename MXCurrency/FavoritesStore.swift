@@ -49,7 +49,28 @@ final class FavoritesStore: ObservableObject {
     }
 
     func remove(at offsets: IndexSet) {
-        pairs.remove(atOffsets: offsets)
+        for index in offsets.sorted(by: >) where pairs.indices.contains(index) {
+            pairs.remove(at: index)
+        }
+        save()
+    }
+
+    func move(fromOffsets offsets: IndexSet, toOffset destination: Int) {
+        let validOffsets = offsets.filter { pairs.indices.contains($0) }
+        guard !validOffsets.isEmpty else { return }
+
+        let movingItems = validOffsets.sorted().map { pairs[$0] }
+        var adjustedDestination = destination
+
+        for index in validOffsets.sorted(by: >) {
+            pairs.remove(at: index)
+            if index < destination {
+                adjustedDestination -= 1
+            }
+        }
+
+        adjustedDestination = max(0, min(adjustedDestination, pairs.count))
+        pairs.insert(contentsOf: movingItems, at: adjustedDestination)
         save()
     }
 
