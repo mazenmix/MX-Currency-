@@ -1,6 +1,6 @@
 {
   "base": "USD",
-  "updatedAt": "2026-10-11T18:54:05.912096Z",
+  "updatedAt": "2026-10-11T22:41:53.465235Z",
   "rates": {
     "AED": 3.6725,
     "AFN": 64.810756,
@@ -45,7 +45,7 @@
     "DZD": 238.83,
     "EGP": 52.38102,
     "ERN": 15.0,
-    "ETB": 192.79,
+    "ETB": 193.2,
     "EUR": 0.892438,
     "FJD": 2.25198,
     "FKP": 0.755895,
@@ -175,7 +175,7 @@
       "source": "Argentina Blue · DolarApi",
       "buy": 1520.0,
       "sell": 1540.0,
-      "updatedAt": "2026-10-11T18:00:00.000Z"
+      "updatedAt": "2026-10-11T21:00:00.000Z"
     },
     "DZD": {
       "kind": "informal",
@@ -189,42 +189,42 @@
       "source": "Ethiopia parallel · EBM",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-10-11T18:54:05.912071Z"
+      "updatedAt": "2026-10-11T22:41:53.465210Z"
     },
     "IRR": {
       "kind": "free-market",
       "source": "Iran free market · TGJU",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-10-11T18:54:00.659118Z"
+      "updatedAt": "2026-10-11T22:41:30.567792Z"
     },
     "LBP": {
       "kind": "cash-market",
       "source": "Lebanon cash · LBPRate",
       "buy": 89400.0,
       "sell": 89600.0,
-      "updatedAt": "2026-10-11T18:54:01.640526Z"
+      "updatedAt": "2026-10-11T22:41:31.243497Z"
     },
     "NGN": {
       "kind": "parallel",
       "source": "Nigeria black market · NGNRates",
       "buy": 1370.0,
       "sell": 1380.0,
-      "updatedAt": "2026-10-11T18:54:04.355677Z"
+      "updatedAt": "2026-10-11T22:41:52.280522Z"
     },
     "PKR": {
       "kind": "open-market",
       "source": "Pakistan open market · Forex.com.pk",
       "buy": 277.5,
       "sell": 278.1,
-      "updatedAt": "2026-10-11T18:54:05.267092Z"
+      "updatedAt": "2026-10-11T22:41:53.028345Z"
     },
     "SYP": {
       "kind": "street",
       "source": "Syria street · SP Today",
       "buy": 14100.0,
       "sell": 14175.0,
-      "updatedAt": "2026-10-11T18:54:01.295403Z"
+      "updatedAt": "2026-10-11T22:41:31.090702Z"
     }
   }
 }
