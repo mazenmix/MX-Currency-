@@ -33,6 +33,7 @@ final class RateService: ObservableObject {
     private struct MXDollarMarketResponse: Decodable {
         let kifah: MXDollarQuote
         let harithiya: MXDollarQuote
+        let kukh: MXDollarQuote?
     }
 
     private static let streetKinds: Set<String> = [
@@ -141,15 +142,15 @@ final class RateService: ObservableObject {
             }
         }
 
-        // IQD is sourced from the exact same live feed used by mxdollar.pages.dev.
-        // The website's headline price is the highest SELL quote across Al-Kifah
-        // and Al-Harithiya for each $100. MX Currency uses that exact headline
-        // value (divided by 100) so 100 USD matches the website one-for-one.
+        // IQD always follows MXDollar's highest USD BUY price (per $100).
+        // Include all three markets shown on the homepage; do not accidentally
+        // read the lower SELL quotes or confuse '164' with 164,000 IQD.
+        // A successful update is reflected without rebuilding the app.
         if codes.contains("IQD"), let quote = await Self.fetchMXDollarIraqRate() {
             rates["IQD"] = quote.rate
             meta["IQD"] = RateMeta(
                 kind: "parallel",
-                source: "MX Exchanger · Kifah / Harithiya",
+                source: "MXDollar · Highest BUY · \(quote.market)",
                 buy: quote.rate,
                 sell: quote.rate,
                 updatedAt: ISO8601DateFormatter().string(from: Date())
@@ -290,9 +291,15 @@ final class RateService: ObservableObject {
         }
     }
 
-    nonisolated private static func fetchMXDollarIraqRate() async -> (rate: Double, kifahSell: Double, harithiyaSell: Double)? {
+    nonisolated private static func fetchMXDollarIraqRate() async -> (rate: Double, market: String)? {
         do {
-            var request = URLRequest(url: mxDollarMarketURL)
+            // Bust both device and intermediary caches once a minute, so the
+            // displayed IQD rate follows the same fresh feed as MXDollar.
+            var components = URLComponents(url: mxDollarMarketURL, resolvingAgainstBaseURL: false)
+            components?.queryItems = [
+                URLQueryItem(name: "v", value: String(Int(Date().timeIntervalSince1970 / 60)))
+            ]
+            var request = URLRequest(url: components?.url ?? mxDollarMarketURL)
             request.timeoutInterval = 12
             request.cachePolicy = .reloadIgnoringLocalCacheData
             request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
@@ -306,16 +313,25 @@ final class RateService: ObservableObject {
             }
 
             let market = try JSONDecoder().decode(MXDollarMarketResponse.self, from: data)
-            // API quote units can vary. For example, a "sell" of 164 means
-            // 164 thousand IQD per USD 100, while 164000 means IQD per USD 100.
-            // Convert to a consistent *IQD per USD 100* before division.
-            guard let kifahSell = Self.iraqSellPerHundred(market.kifah.sell),
-                  let harithiyaSell = Self.iraqSellPerHundred(market.harithiya.sell) else { return nil }
+            var buyPrices: [(name: String, perHundred: Double)] = []
 
-            let highestSellPer100 = max(kifahSell, harithiyaSell)
-            let ratePerDollar = highestSellPer100 / 100.0
+            // Homepage's "Highest now for $100" is based on dealer BUY, not
+            // dealer SELL. A dealer's BUY is the price for the user's $100.
+            if let kifah = Self.iraqCashPerHundredNormalized(market.kifah.buy) {
+                buyPrices.append((name: "Kifah", perHundred: kifah))
+            }
+            if let harithiya = Self.iraqCashPerHundredNormalized(market.harithiya.buy) {
+                buyPrices.append((name: "Harithiya", perHundred: harithiya))
+            }
+            if let kukh = market.kukh,
+               let normalized = Self.iraqCashPerHundredNormalized(kukh.buy) {
+                buyPrices.append((name: "Kukh", perHundred: normalized))
+            }
 
-            return (ratePerDollar, kifahSell, harithiyaSell)
+            guard let highest = buyPrices.max(by: { $0.perHundred < $1.perHundred }) else {
+                return nil
+            }
+            return (rate: highest.perHundred / 100.0, market: highest.name)
         } catch {
             return nil
         }
@@ -324,7 +340,7 @@ final class RateService: ObservableObject {
     // The site currently mixes raw cash-per-100 and amounts abbreviated in
     // thousands. Validate plausible IQD prices so a bad unit never produces
     // a rate that is 100 or 1000 times too small.
-    nonisolated private static func iraqSellPerHundred(_ raw: Double) -> Double? {
+    nonisolated private static func iraqCashPerHundredNormalized(_ raw: Double) -> Double? {
         guard raw.isFinite else { return nil }
         let result: Double
         if (80_000...350_000).contains(raw) {
