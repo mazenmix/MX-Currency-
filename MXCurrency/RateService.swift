@@ -232,6 +232,30 @@ final class RateService: ObservableObject {
         rates = snapshot.rates
         rates["USD"] = 1
         meta = snapshot.meta
+
+        // Older app builds sometimes saved 1.64 instead of 1,640 IQD/USD
+        // because the website's sell quote is expressed in thousands.
+        // Repair the existing on-device cache immediately, including its
+        // bid/ask metadata (used by rate(from:to:)), even while offline.
+        if let cachedIQD = rates["IQD"] {
+            if let corrected = Self.correctedCachedIQDRate(cachedIQD) {
+                rates["IQD"] = corrected
+                if let previous = meta["IQD"] {
+                    meta["IQD"] = RateMeta(
+                        kind: previous.kind,
+                        source: previous.source,
+                        buy: corrected,
+                        sell: corrected,
+                        updatedAt: previous.updatedAt
+                    )
+                }
+            } else {
+                // Never display an implausible saved conversion as a live rate.
+                rates.removeValue(forKey: "IQD")
+                meta.removeValue(forKey: "IQD")
+            }
+        }
+
         updatedAt = snapshot.updatedAt
     }
 
@@ -282,16 +306,45 @@ final class RateService: ObservableObject {
             }
 
             let market = try JSONDecoder().decode(MXDollarMarketResponse.self, from: data)
-            guard market.kifah.sell > 0, market.harithiya.sell > 0 else { return nil }
+            // API quote units can vary. For example, a "sell" of 164 means
+            // 164 thousand IQD per USD 100, while 164000 means IQD per USD 100.
+            // Convert to a consistent *IQD per USD 100* before division.
+            guard let kifahSell = Self.iraqSellPerHundred(market.kifah.sell),
+                  let harithiyaSell = Self.iraqSellPerHundred(market.harithiya.sell) else { return nil }
 
-            let highestSellPer100 = max(market.kifah.sell, market.harithiya.sell)
+            let highestSellPer100 = max(kifahSell, harithiyaSell)
             let ratePerDollar = highestSellPer100 / 100.0
-            guard ratePerDollar > 0 else { return nil }
 
-            return (ratePerDollar, market.kifah.sell, market.harithiya.sell)
+            return (ratePerDollar, kifahSell, harithiyaSell)
         } catch {
             return nil
         }
+    }
+
+    // The site currently mixes raw cash-per-100 and amounts abbreviated in
+    // thousands. Validate plausible IQD prices so a bad unit never produces
+    // a rate that is 100 or 1000 times too small.
+    nonisolated private static func iraqSellPerHundred(_ raw: Double) -> Double? {
+        guard raw.isFinite else { return nil }
+        let result: Double
+        if (80_000...350_000).contains(raw) {
+            result = raw                  // 164000 IQD / 100 USD
+        } else if (800...3_500).contains(raw) {
+            result = raw * 100            // 1640 IQD / 1 USD
+        } else if (80...350).contains(raw) {
+            result = raw * 1_000          // 164 thousand IQD / 100 USD
+        } else {
+            return nil
+        }
+        return (80_000...350_000).contains(result) ? result : nil
+    }
+
+    nonisolated private static func correctedCachedIQDRate(_ raw: Double) -> Double? {
+        guard raw.isFinite else { return nil }
+        if (800...3_500).contains(raw) { return raw }
+        if (0.8...3.5).contains(raw) { return raw * 1_000 }
+        if (80...350).contains(raw) { return raw * 10 }
+        return nil
     }
 
     nonisolated private static func fetchArgentinaBlue() async -> (buy: Double, sell: Double, mid: Double, updatedAt: String?)? {
