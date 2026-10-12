@@ -5,13 +5,25 @@ struct ContentView: View {
     @EnvironmentObject private var rates: RateService
     @EnvironmentObject private var favorites: FavoritesStore
 
-    @State private var from = CurrencyCatalog.currency("USD")
-    @State private var to = CurrencyCatalog.currency("PHP")
+    // Restore the exact pair from the previous session instead of resetting
+    // to USD -> PHP whenever the app process starts.
+    private static let lastFromKey = "mx.currency.lastFrom.v1"
+    private static let lastToKey = "mx.currency.lastTo.v1"
+
+    @State private var from: CurrencyInfo
+    @State private var to: CurrencyInfo
     @State private var amountText = ""
     @State private var showFromPicker = false
     @State private var showToPicker = false
     @State private var showFavorites = false
     @State private var showSettings = false
+
+    init() {
+        let savedFrom = UserDefaults.standard.string(forKey: Self.lastFromKey) ?? "USD"
+        let savedTo = UserDefaults.standard.string(forKey: Self.lastToKey) ?? "PHP"
+        _from = State(initialValue: CurrencyCatalog.currency(savedFrom))
+        _to = State(initialValue: CurrencyCatalog.currency(savedTo))
+    }
 
     private var amount: Double { Double(amountText) ?? 0 }
     private var currentPair: CurrencyPair { CurrencyPair(from: from.code, to: to.code) }
@@ -58,6 +70,14 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showSettings) {
             SettingsView()
+        }
+        // Saved immediately for currency-picker choices, Switch and Favorites.
+        // UserDefaults survives app termination and a normal app update.
+        .onChange(of: from.code) { newCode in
+            UserDefaults.standard.set(newCode, forKey: Self.lastFromKey)
+        }
+        .onChange(of: to.code) { newCode in
+            UserDefaults.standard.set(newCode, forKey: Self.lastToKey)
         }
         .task(id: refreshKey) {
             while !Task.isCancelled {
@@ -130,7 +150,7 @@ struct ContentView: View {
 
     private var keypad: some View {
         GeometryReader { geo in
-            let divider: CGFloat = 1
+            let divider: CGFloat = 4
             let actionWidth = geo.size.width * 0.25
             let leftWidth = geo.size.width - actionWidth - divider
             let keyWidth = (leftWidth - (divider * 2)) / 3
@@ -162,7 +182,7 @@ struct ContentView: View {
 
                 VStack(spacing: divider) {
                     ActionKey(
-                        background: Color(red: 1.00, green: 0.20, blue: 0.20),
+                        background: Color(red: 0.91, green: 0.23, blue: 0.25),
                         foreground: .white,
                         systemName: "trash",
                         height: rowHeight
@@ -171,7 +191,7 @@ struct ContentView: View {
                     }
 
                     ActionKey(
-                        background: Color(white: 0.96),
+                        background: Color(white: 0.89),
                         foreground: .black,
                         systemName: "delete.left",
                         height: rowHeight
@@ -188,18 +208,22 @@ struct ContentView: View {
                             Image(systemName: "arrow.triangle.2.circlepath")
                                 .font(.system(size: 27, weight: .light))
                             Text("Switch")
-                                .font(.system(size: 18, weight: .regular, design: .rounded))
+                                .font(.system(size: 18, weight: .medium, design: .rounded))
                         }
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color(red: 0.20, green: 0.84, blue: 0.31))
+                        .background(
+                            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                                .fill(Color(red: 0.16, green: 0.77, blue: 0.34))
+                        )
+                        .contentShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(SoftKeyPressStyle())
                     .frame(height: rowHeight * 2 + divider)
                 }
                 .frame(width: actionWidth)
             }
-            .background(Color.white.opacity(0.18))
+            .background(Color.black)
         }
     }
 
@@ -328,6 +352,17 @@ private struct CurrencyButton: View {
     }
 }
 
+// Lightweight, immediate press feedback for the calculator, without
+// delaying the number change or animating the entire screen.
+private struct SoftKeyPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.75 : 1)
+            .scaleEffect(configuration.isPressed ? 0.965 : 1)
+            .animation(.easeOut(duration: 0.09), value: configuration.isPressed)
+    }
+}
+
 private struct KeyButton: View {
     let title: String
     let width: CGFloat
@@ -344,12 +379,17 @@ private struct KeyButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 34, weight: .light, design: .rounded))
-                .foregroundStyle(.white)
+                .font(.system(size: 36, weight: .light, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(.white.opacity(0.96))
                 .frame(width: width, height: height)
-                .background(Color.black)
+                .background(
+                    RoundedRectangle(cornerRadius: 15, style: .continuous)
+                        .fill(Color(white: 0.062))
+                )
+                .contentShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(SoftKeyPressStyle())
     }
 }
 
@@ -366,9 +406,13 @@ private struct ActionKey: View {
                 .font(.system(size: 26, weight: .light))
                 .foregroundStyle(foreground)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(background)
+                .background(
+                    RoundedRectangle(cornerRadius: 15, style: .continuous)
+                        .fill(background)
+                )
+                .contentShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(SoftKeyPressStyle())
         .frame(height: height)
     }
 }
