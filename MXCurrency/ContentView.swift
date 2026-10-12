@@ -227,7 +227,10 @@ struct ContentView: View {
         guard let value = rates.rate(from: from.code, to: to.code) else {
             return "1 \(from.code) = — \(to.code)"
         }
-        return "1 \(from.code) = \(format(value, decimals: 3)) \(to.code)"
+        // The Iraqi dinar has no practical subunit in this calculator.
+        // Show 1,640 IQD (not 1,640.000) for a 1 USD market quote.
+        let decimals = to.code == "IQD" ? 0 : 3
+        return "1 \(from.code) = \(format(value, decimals: decimals)) \(to.code)"
     }
 
     private var displayInput: String {
