@@ -352,17 +352,6 @@ private struct CurrencyButton: View {
     }
 }
 
-// Lightweight, immediate press feedback for the calculator, without
-// delaying the number change or animating the entire screen.
-private struct SoftKeyPressStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .opacity(configuration.isPressed ? 0.75 : 1)
-            .scaleEffect(configuration.isPressed ? 0.965 : 1)
-            .animation(.easeOut(duration: 0.09), value: configuration.isPressed)
-    }
-}
-
 private struct KeyButton: View {
     let title: String
     let width: CGFloat
@@ -414,6 +403,17 @@ private struct ActionKey: View {
         }
         .buttonStyle(SoftKeyPressStyle())
         .frame(height: height)
+    }
+}
+
+// Lightweight, immediate press feedback for the calculator, without
+// delaying the number change or animating the entire screen.
+private struct SoftKeyPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.75 : 1)
+            .scaleEffect(configuration.isPressed ? 0.965 : 1)
+            .animation(.easeOut(duration: 0.09), value: configuration.isPressed)
     }
 }
 
