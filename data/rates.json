@@ -1,6 +1,6 @@
 {
   "base": "USD",
-  "updatedAt": "2026-10-14T21:35:30.918303Z",
+  "updatedAt": "2026-10-15T00:05:39.252742Z",
   "rates": {
     "AED": 3.6725,
     "AFN": 64.935182,
@@ -45,7 +45,7 @@
     "DZD": 238.83,
     "EGP": 52.804385,
     "ERN": 15.0,
-    "ETB": 192.42,
+    "ETB": 192.6,
     "EUR": 0.893421,
     "FJD": 2.252088,
     "FKP": 0.754716,
@@ -182,14 +182,14 @@
       "source": "Algiers Square · ExchangeDZ",
       "buy": 237.33,
       "sell": 240.33,
-      "updatedAt": "2026-10-14T21:35:27.916753Z"
+      "updatedAt": "2026-10-15T00:05:37.303366Z"
     },
     "ETB": {
       "kind": "parallel",
       "source": "Ethiopia parallel · EBM",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-10-14T21:35:30.918275Z"
+      "updatedAt": "2026-10-15T00:05:39.252714Z"
     },
     "IQD": {
       "kind": "parallel",
@@ -203,35 +203,35 @@
       "source": "Iran free market · TGJU",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-10-14T21:35:25.053734Z"
+      "updatedAt": "2026-10-15T00:05:35.686468Z"
     },
     "LBP": {
       "kind": "cash-market",
       "source": "Lebanon cash · LBPRate",
       "buy": 89400.0,
       "sell": 89700.0,
-      "updatedAt": "2026-10-14T21:35:26.294821Z"
+      "updatedAt": "2026-10-15T00:05:36.284213Z"
     },
     "NGN": {
       "kind": "parallel",
       "source": "Nigeria black market · NGNRates",
       "buy": 1365.0,
       "sell": 1375.0,
-      "updatedAt": "2026-10-14T21:35:29.340942Z"
+      "updatedAt": "2026-10-15T00:05:38.171210Z"
     },
     "PKR": {
       "kind": "open-market",
       "source": "Pakistan open market · Forex.com.pk",
       "buy": 277.6,
       "sell": 280.3,
-      "updatedAt": "2026-10-14T21:35:30.197497Z"
+      "updatedAt": "2026-10-15T00:05:38.729748Z"
     },
     "SYP": {
       "kind": "street",
       "source": "Syria street · SP Today",
       "buy": 13900.0,
       "sell": 13975.0,
-      "updatedAt": "2026-10-14T21:35:25.837098Z"
+      "updatedAt": "2026-10-15T00:05:36.220366Z"
     }
   }
 }
