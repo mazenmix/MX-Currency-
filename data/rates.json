@@ -1,6 +1,6 @@
 {
   "base": "USD",
-  "updatedAt": "2026-10-18T21:40:04.270739Z",
+  "updatedAt": "2026-10-18T23:41:33.886191Z",
   "rates": {
     "AED": 3.6725,
     "AFN": 64.874417,
@@ -45,7 +45,7 @@
     "DZD": 238.66500000000002,
     "EGP": 53.459696,
     "ERN": 15.0,
-    "ETB": 184.01,
+    "ETB": 184.35,
     "EUR": 0.889614,
     "FJD": 2.252412,
     "FKP": 0.750841,
@@ -182,14 +182,14 @@
       "source": "Algiers Square · ExchangeDZ",
       "buy": 237.33,
       "sell": 240.0,
-      "updatedAt": "2026-10-18T21:40:01.733111Z"
+      "updatedAt": "2026-10-18T23:41:30.993981Z"
     },
     "ETB": {
       "kind": "parallel",
       "source": "Ethiopia parallel · EBM",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-10-18T21:40:04.270709Z"
+      "updatedAt": "2026-10-18T23:41:33.886161Z"
     },
     "IQD": {
       "kind": "parallel",
@@ -203,35 +203,35 @@
       "source": "Iran free market · TGJU",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-10-18T21:39:59.325230Z"
+      "updatedAt": "2026-10-18T23:41:28.591165Z"
     },
     "LBP": {
       "kind": "cash-market",
       "source": "Lebanon cash · LBPRate",
       "buy": 89400.0,
       "sell": 89700.0,
-      "updatedAt": "2026-10-18T21:40:00.240322Z"
+      "updatedAt": "2026-10-18T23:41:29.637551Z"
     },
     "NGN": {
       "kind": "parallel",
       "source": "Nigeria black market · NGNRates",
       "buy": 1365.0,
       "sell": 1380.0,
-      "updatedAt": "2026-10-18T21:40:02.891460Z"
+      "updatedAt": "2026-10-18T23:41:32.286118Z"
     },
     "PKR": {
       "kind": "open-market",
       "source": "Pakistan open market · Forex.com.pk",
       "buy": 277.5,
       "sell": 280.2,
-      "updatedAt": "2026-10-18T21:40:03.709123Z"
+      "updatedAt": "2026-10-18T23:41:33.180995Z"
     },
     "SYP": {
       "kind": "street",
       "source": "Syria street · SP Today",
       "buy": 13975.0,
       "sell": 14050.0,
-      "updatedAt": "2026-10-18T21:39:59.988864Z"
+      "updatedAt": "2026-10-18T23:41:29.270539Z"
     }
   }
 }
