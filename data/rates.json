@@ -1,6 +1,6 @@
 {
   "base": "USD",
-  "updatedAt": "2026-10-22T00:44:17.594876Z",
+  "updatedAt": "2026-10-22T05:27:48.135773Z",
   "rates": {
     "AED": 3.6725,
     "AFN": 64.953537,
@@ -45,7 +45,7 @@
     "DZD": 240.5,
     "EGP": 54.385184,
     "ERN": 15.0,
-    "ETB": 192.08,
+    "ETB": 192.0,
     "EUR": 0.890292,
     "FJD": 2.254161,
     "FKP": 0.746672,
@@ -182,14 +182,14 @@
       "source": "Algiers Square · ExchangeDZ",
       "buy": 239.0,
       "sell": 242.0,
-      "updatedAt": "2026-10-22T00:44:15.332594Z"
+      "updatedAt": "2026-10-22T05:27:46.249533Z"
     },
     "ETB": {
       "kind": "parallel",
       "source": "Ethiopia parallel · EBM",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-10-22T00:44:17.594846Z"
+      "updatedAt": "2026-10-22T05:27:48.135730Z"
     },
     "IQD": {
       "kind": "parallel",
@@ -203,35 +203,35 @@
       "source": "Iran free market · TGJU",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-10-22T00:44:13.370024Z"
+      "updatedAt": "2026-10-22T05:27:44.702873Z"
     },
     "LBP": {
       "kind": "cash-market",
       "source": "Lebanon cash · LBPRate",
       "buy": 89300.0,
       "sell": 89700.0,
-      "updatedAt": "2026-10-22T00:44:14.169038Z"
+      "updatedAt": "2026-10-22T05:27:45.243951Z"
     },
     "NGN": {
       "kind": "parallel",
       "source": "Nigeria black market · NGNRates",
       "buy": 1367.0,
       "sell": 1380.0,
-      "updatedAt": "2026-10-22T00:44:16.371587Z"
+      "updatedAt": "2026-10-22T05:27:47.095452Z"
     },
     "PKR": {
       "kind": "open-market",
       "source": "Pakistan open market · Forex.com.pk",
       "buy": 277.6,
       "sell": 280.3,
-      "updatedAt": "2026-10-22T00:44:17.046584Z"
+      "updatedAt": "2026-10-22T05:27:47.694983Z"
     },
     "SYP": {
       "kind": "street",
       "source": "Syria street · SP Today",
       "buy": 14100.0,
       "sell": 14175.0,
-      "updatedAt": "2026-10-22T00:44:13.973238Z"
+      "updatedAt": "2026-10-22T05:27:45.156816Z"
     }
   }
 }
