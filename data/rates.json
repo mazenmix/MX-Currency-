@@ -1,6 +1,6 @@
 {
   "base": "USD",
-  "updatedAt": "2026-10-23T01:00:14.721181Z",
+  "updatedAt": "2026-10-23T05:57:53.380166Z",
   "rates": {
     "AED": 3.6725,
     "AFN": 64.973623,
@@ -45,7 +45,7 @@
     "DZD": 239.83,
     "EGP": 55.215592,
     "ERN": 15.0,
-    "ETB": 192.7,
+    "ETB": 191.89,
     "EUR": 0.891529,
     "FJD": 2.251113,
     "FKP": 0.746684,
@@ -182,14 +182,14 @@
       "source": "Algiers Square · ExchangeDZ",
       "buy": 237.33,
       "sell": 242.33,
-      "updatedAt": "2026-10-23T01:00:11.699648Z"
+      "updatedAt": "2026-10-23T05:57:50.243380Z"
     },
     "ETB": {
       "kind": "parallel",
       "source": "Ethiopia parallel · EBM",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-10-23T01:00:14.721151Z"
+      "updatedAt": "2026-10-23T05:57:53.380142Z"
     },
     "IQD": {
       "kind": "parallel",
@@ -203,35 +203,35 @@
       "source": "Iran free market · TGJU",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-10-23T01:00:08.647433Z"
+      "updatedAt": "2026-10-23T05:57:47.378093Z"
     },
     "LBP": {
       "kind": "cash-market",
       "source": "Lebanon cash · LBPRate",
       "buy": 89400.0,
       "sell": 89700.0,
-      "updatedAt": "2026-10-23T01:00:09.441083Z"
+      "updatedAt": "2026-10-23T05:57:48.770897Z"
     },
     "NGN": {
       "kind": "parallel",
       "source": "Nigeria black market · NGNRates",
       "buy": 1363.75,
       "sell": 1377.5,
-      "updatedAt": "2026-10-23T01:00:12.934075Z"
+      "updatedAt": "2026-10-23T05:57:51.463590Z"
     },
     "PKR": {
       "kind": "open-market",
       "source": "Pakistan open market · Forex.com.pk",
       "buy": 277.5,
       "sell": 280.15,
-      "updatedAt": "2026-10-23T01:00:13.988815Z"
+      "updatedAt": "2026-10-23T05:57:52.613364Z"
     },
     "SYP": {
       "kind": "street",
       "source": "Syria street · SP Today",
       "buy": 14100.0,
       "sell": 14150.0,
-      "updatedAt": "2026-10-23T01:00:09.093709Z"
+      "updatedAt": "2026-10-23T05:57:48.077819Z"
     }
   }
 }
