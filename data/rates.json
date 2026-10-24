@@ -1,6 +1,6 @@
 {
   "base": "USD",
-  "updatedAt": "2026-10-24T17:24:18.798585Z",
+  "updatedAt": "2026-10-24T19:39:59.467561Z",
   "rates": {
     "AED": 3.6725,
     "AFN": 64.961862,
@@ -45,7 +45,7 @@
     "DZD": 239.83,
     "EGP": 55.288734,
     "ERN": 15.0,
-    "ETB": 193.08,
+    "ETB": 192.99,
     "EUR": 0.892784,
     "FJD": 2.251072,
     "FKP": 0.747655,
@@ -175,21 +175,21 @@
       "source": "Argentina Blue · DolarApi",
       "buy": 1545.0,
       "sell": 1565.0,
-      "updatedAt": "2026-10-24T14:56:00.000Z"
+      "updatedAt": "2026-10-24T17:59:00.000Z"
     },
     "DZD": {
       "kind": "informal",
       "source": "Algiers Square · ExchangeDZ",
       "buy": 237.33,
       "sell": 242.33,
-      "updatedAt": "2026-10-24T17:24:16.359351Z"
+      "updatedAt": "2026-10-24T19:39:57.560455Z"
     },
     "ETB": {
       "kind": "parallel",
       "source": "Ethiopia parallel · EBM",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-10-24T17:24:18.798555Z"
+      "updatedAt": "2026-10-24T19:39:59.467536Z"
     },
     "IQD": {
       "kind": "parallel",
@@ -210,28 +210,28 @@
       "source": "Lebanon cash · LBPRate",
       "buy": 89300.0,
       "sell": 89700.0,
-      "updatedAt": "2026-10-24T17:24:15.135872Z"
+      "updatedAt": "2026-10-24T19:39:56.582062Z"
     },
     "NGN": {
       "kind": "parallel",
       "source": "Nigeria black market · NGNRates",
       "buy": 1370.0,
       "sell": 1385.0,
-      "updatedAt": "2026-10-24T17:24:17.577626Z"
+      "updatedAt": "2026-10-24T19:39:58.423632Z"
     },
     "PKR": {
       "kind": "open-market",
       "source": "Pakistan open market · Forex.com.pk",
       "buy": 277.5,
       "sell": 280.0,
-      "updatedAt": "2026-10-24T17:24:18.264404Z"
+      "updatedAt": "2026-10-24T19:39:59.028425Z"
     },
     "SYP": {
       "kind": "street",
       "source": "Syria street · SP Today",
       "buy": 14175.0,
       "sell": 14250.0,
-      "updatedAt": "2026-10-24T17:24:14.890452Z"
+      "updatedAt": "2026-10-24T19:39:56.473380Z"
     }
   }
 }
