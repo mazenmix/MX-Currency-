@@ -1,6 +1,6 @@
 {
   "base": "USD",
-  "updatedAt": "2026-10-24T01:08:45.591592Z",
+  "updatedAt": "2026-10-24T05:53:36.351432Z",
   "rates": {
     "AED": 3.6725,
     "AFN": 64.961862,
@@ -45,7 +45,7 @@
     "DZD": 239.83,
     "EGP": 55.288734,
     "ERN": 15.0,
-    "ETB": 192.5,
+    "ETB": 192.4,
     "EUR": 0.892784,
     "FJD": 2.251072,
     "FKP": 0.747655,
@@ -182,14 +182,14 @@
       "source": "Algiers Square · ExchangeDZ",
       "buy": 237.33,
       "sell": 242.33,
-      "updatedAt": "2026-10-24T01:08:41.766611Z"
+      "updatedAt": "2026-10-24T05:53:33.427293Z"
     },
     "ETB": {
       "kind": "parallel",
       "source": "Ethiopia parallel · EBM",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-10-24T01:08:45.591564Z"
+      "updatedAt": "2026-10-24T05:53:36.351408Z"
     },
     "IQD": {
       "kind": "parallel",
@@ -203,35 +203,35 @@
       "source": "Iran free market · TGJU",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-10-24T01:08:40.142548Z"
+      "updatedAt": "2026-10-24T05:53:30.449406Z"
     },
     "LBP": {
       "kind": "cash-market",
       "source": "Lebanon cash · LBPRate",
       "buy": 89400.0,
       "sell": 89700.0,
-      "updatedAt": "2026-10-24T01:08:40.600429Z"
+      "updatedAt": "2026-10-24T05:53:31.643107Z"
     },
     "NGN": {
       "kind": "parallel",
       "source": "Nigeria black market · NGNRates",
       "buy": 1370.0,
       "sell": 1385.0,
-      "updatedAt": "2026-10-24T01:08:42.602435Z"
+      "updatedAt": "2026-10-24T05:53:34.731857Z"
     },
     "PKR": {
       "kind": "open-market",
       "source": "Pakistan open market · Forex.com.pk",
       "buy": 277.5,
       "sell": 280.0,
-      "updatedAt": "2026-10-24T01:08:43.417746Z"
+      "updatedAt": "2026-10-24T05:53:35.682480Z"
     },
     "SYP": {
       "kind": "street",
       "source": "Syria street · SP Today",
       "buy": 14100.0,
       "sell": 14150.0,
-      "updatedAt": "2026-10-24T01:08:40.451906Z"
+      "updatedAt": "2026-10-24T05:53:31.173073Z"
     }
   }
 }
