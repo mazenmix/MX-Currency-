@@ -1,6 +1,6 @@
 {
   "base": "USD",
-  "updatedAt": "2026-10-25T19:49:08.426371Z",
+  "updatedAt": "2026-10-25T22:07:23.541216Z",
   "rates": {
     "AED": 3.6725,
     "AFN": 64.990392,
@@ -45,7 +45,7 @@
     "DZD": 240.66500000000002,
     "EGP": 55.281789,
     "ERN": 15.0,
-    "ETB": 194.33,
+    "ETB": 194.0,
     "EUR": 0.892628,
     "FJD": 2.251005,
     "FKP": 0.747679,
@@ -68,7 +68,7 @@
     "ILS": 3.110754,
     "IMP": 0.747679,
     "INR": 95.001468,
-    "IQD": 1673.0,
+    "IQD": 1677.5,
     "IRR": 2695000.0,
     "ISK": 121.721785,
     "JEP": 0.747679,
@@ -175,63 +175,63 @@
       "source": "Argentina Blue · DolarApi",
       "buy": 1545.0,
       "sell": 1565.0,
-      "updatedAt": "2026-10-25T17:58:00.000Z"
+      "updatedAt": "2026-10-25T20:58:00.000Z"
     },
     "DZD": {
       "kind": "informal",
       "source": "Algiers Square · ExchangeDZ",
       "buy": 239.33,
       "sell": 242.0,
-      "updatedAt": "2026-10-25T19:49:06.495233Z"
+      "updatedAt": "2026-10-25T22:07:20.809802Z"
     },
     "ETB": {
       "kind": "parallel",
       "source": "Ethiopia parallel · EBM",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-10-25T19:49:08.426346Z"
+      "updatedAt": "2026-10-25T22:07:23.541189Z"
     },
     "IQD": {
       "kind": "parallel",
       "source": "Baghdad Kifah board · @dollariraqi",
-      "buy": 1673.0,
-      "sell": 1673.0,
-      "updatedAt": "2026-10-25T14:35:52.000Z"
+      "buy": 1677.5,
+      "sell": 1677.5,
+      "updatedAt": "2026-10-25T19:54:53.000Z"
     },
     "IRR": {
       "kind": "free-market",
       "source": "Iran free market · TGJU",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-10-25T19:49:05.110742Z"
+      "updatedAt": "2026-10-25T22:07:18.369581Z"
     },
     "LBP": {
       "kind": "cash-market",
       "source": "Lebanon cash · LBPRate",
       "buy": 89500.0,
       "sell": 89700.0,
-      "updatedAt": "2026-10-25T19:49:05.499886Z"
+      "updatedAt": "2026-10-25T22:07:19.432911Z"
     },
     "NGN": {
       "kind": "parallel",
       "source": "Nigeria black market · NGNRates",
       "buy": 1370.0,
       "sell": 1385.0,
-      "updatedAt": "2026-10-25T19:49:07.334710Z"
+      "updatedAt": "2026-10-25T22:07:22.037727Z"
     },
     "PKR": {
       "kind": "open-market",
       "source": "Pakistan open market · Forex.com.pk",
       "buy": 277.5,
       "sell": 280.0,
-      "updatedAt": "2026-10-25T19:49:07.954035Z"
+      "updatedAt": "2026-10-25T22:07:22.890169Z"
     },
     "SYP": {
       "kind": "street",
       "source": "Syria street · SP Today",
       "buy": 14250.0,
       "sell": 14325.0,
-      "updatedAt": "2026-10-25T19:49:05.402777Z"
+      "updatedAt": "2026-10-25T22:07:19.023971Z"
     }
   }
 }
