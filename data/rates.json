@@ -1,6 +1,6 @@
 {
   "base": "USD",
-  "updatedAt": "2026-11-01T18:52:35.862244Z",
+  "updatedAt": "2026-11-01T22:34:51.588168Z",
   "rates": {
     "AED": 3.6725,
     "AFN": 65.021269,
@@ -45,7 +45,7 @@
     "DZD": 240.33499999999998,
     "EGP": 56.030715,
     "ERN": 15.0,
-    "ETB": 191.1,
+    "ETB": 191.17,
     "EUR": 0.895556,
     "FJD": 2.244647,
     "FKP": 0.746946,
@@ -175,21 +175,21 @@
       "source": "Argentina Blue · DolarApi",
       "buy": 1545.0,
       "sell": 1565.0,
-      "updatedAt": "2026-11-01T17:57:00.000Z"
+      "updatedAt": "2026-11-01T20:58:00.000Z"
     },
     "DZD": {
       "kind": "informal",
       "source": "Algiers Square · ExchangeDZ",
       "buy": 239.0,
       "sell": 241.67,
-      "updatedAt": "2026-11-01T18:52:33.069494Z"
+      "updatedAt": "2026-11-01T22:34:49.219445Z"
     },
     "ETB": {
       "kind": "parallel",
       "source": "Ethiopia parallel · EBM",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-11-01T18:52:35.862208Z"
+      "updatedAt": "2026-11-01T22:34:51.588143Z"
     },
     "IQD": {
       "kind": "parallel",
@@ -203,35 +203,35 @@
       "source": "Iran free market · TGJU",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-11-01T18:52:30.275427Z"
+      "updatedAt": "2026-11-01T22:34:47.311733Z"
     },
     "LBP": {
       "kind": "cash-market",
       "source": "Lebanon cash · LBPRate",
       "buy": 89400.0,
       "sell": 89700.0,
-      "updatedAt": "2026-11-01T18:52:31.478813Z"
+      "updatedAt": "2026-11-01T22:34:47.998638Z"
     },
     "NGN": {
       "kind": "parallel",
       "source": "Nigeria black market · NGNRates",
       "buy": 1380.0,
       "sell": 1395.0,
-      "updatedAt": "2026-11-01T18:52:34.383010Z"
+      "updatedAt": "2026-11-01T22:34:50.378747Z"
     },
     "PKR": {
       "kind": "open-market",
       "source": "Pakistan open market · Forex.com.pk",
       "buy": 277.5,
       "sell": 280.0,
-      "updatedAt": "2026-11-01T18:52:35.180488Z"
+      "updatedAt": "2026-11-01T22:34:51.005367Z"
     },
     "SYP": {
       "kind": "street",
       "source": "Syria street · SP Today",
       "buy": 14300.0,
       "sell": 14375.0,
-      "updatedAt": "2026-11-01T18:52:31.009855Z"
+      "updatedAt": "2026-11-01T22:34:47.752628Z"
     }
   }
 }
