@@ -1,6 +1,6 @@
 {
   "base": "USD",
-  "updatedAt": "2026-11-12T03:25:21.828272Z",
+  "updatedAt": "2026-11-12T11:42:04.729675Z",
   "rates": {
     "AED": 3.6725,
     "AFN": 65.202212,
@@ -69,7 +69,7 @@
     "IMP": 0.752424,
     "INR": 93.851604,
     "IQD": 1689.5,
-    "IRR": 2640700.0,
+    "IRR": 2675050.0,
     "ISK": 122.980455,
     "JEP": 0.752424,
     "JMD": 158.714247,
@@ -105,7 +105,7 @@
     "MYR": 4.069484,
     "MZN": 63.727382,
     "NAD": 16.587499,
-    "NGN": 1349.822603,
+    "NGN": 1435.0,
     "NIO": 36.859363,
     "NOK": 9.545583,
     "NPR": 150.170463,
@@ -115,7 +115,7 @@
     "PEN": 3.417777,
     "PGK": 4.50683,
     "PHP": 63.30539,
-    "PKR": 278.425,
+    "PKR": 278.35,
     "PLN": 3.967814,
     "PYG": 6187.782549,
     "QAR": 3.64,
@@ -182,7 +182,7 @@
       "source": "Algiers Square · ExchangeDZ",
       "buy": 240.33,
       "sell": 243.0,
-      "updatedAt": "2026-11-12T03:25:19.433016Z"
+      "updatedAt": "2026-11-12T11:42:02.521456Z"
     },
     "ETB": {
       "kind": "parallel",
@@ -203,28 +203,35 @@
       "source": "Iran free market · TGJU",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-11-12T03:25:17.413848Z"
+      "updatedAt": "2026-11-12T11:42:00.592867Z"
     },
     "LBP": {
       "kind": "cash-market",
       "source": "Lebanon cash · LBPRate",
       "buy": 89400.0,
       "sell": 89700.0,
-      "updatedAt": "2026-11-12T03:25:18.054735Z"
+      "updatedAt": "2026-11-12T11:42:01.337719Z"
+    },
+    "NGN": {
+      "kind": "parallel",
+      "source": "Nigeria black market · NGNRates",
+      "buy": 1425.0,
+      "sell": 1445.0,
+      "updatedAt": "2026-11-12T11:42:03.640240Z"
     },
     "PKR": {
       "kind": "open-market",
       "source": "Pakistan open market · Forex.com.pk",
-      "buy": 277.3,
-      "sell": 279.55,
-      "updatedAt": "2026-11-12T03:25:21.259030Z"
+      "buy": 277.2,
+      "sell": 279.5,
+      "updatedAt": "2026-11-12T11:42:04.220912Z"
     },
     "SYP": {
       "kind": "street",
       "source": "Syria street · SP Today",
       "buy": 14650.0,
       "sell": 14700.0,
-      "updatedAt": "2026-11-12T03:25:17.804202Z"
+      "updatedAt": "2026-11-12T11:42:01.132512Z"
     }
   }
 }
