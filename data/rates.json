@@ -1,6 +1,6 @@
 {
   "base": "USD",
-  "updatedAt": "2026-11-13T15:23:09.129202Z",
+  "updatedAt": "2026-11-13T21:29:30.488505Z",
   "rates": {
     "AED": 3.6725,
     "AFN": 65.23686,
@@ -8,7 +8,7 @@
     "AMD": 360.733206,
     "ANG": 1.79,
     "AOA": 916.171827,
-    "ARS": 1555.0,
+    "ARS": 1565.0,
     "AUD": 1.468309,
     "AWG": 1.79,
     "AZN": 1.701185,
@@ -173,16 +173,16 @@
     "ARS": {
       "kind": "parallel",
       "source": "Argentina Blue · DolarApi",
-      "buy": 1545.0,
-      "sell": 1565.0,
-      "updatedAt": "2026-11-13T14:57:00.000Z"
+      "buy": 1555.0,
+      "sell": 1575.0,
+      "updatedAt": "2026-11-13T20:58:00.000Z"
     },
     "DZD": {
       "kind": "informal",
       "source": "Algiers Square · ExchangeDZ",
       "buy": 240.67,
       "sell": 243.33,
-      "updatedAt": "2026-11-13T15:23:07.051878Z"
+      "updatedAt": "2026-11-13T21:29:28.593782Z"
     },
     "IQD": {
       "kind": "parallel",
@@ -196,35 +196,35 @@
       "source": "Iran free market · TGJU",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-11-13T15:23:05.368400Z"
+      "updatedAt": "2026-11-13T21:29:27.094566Z"
     },
     "LBP": {
       "kind": "cash-market",
       "source": "Lebanon cash · LBPRate",
       "buy": 89400.0,
       "sell": 89700.0,
-      "updatedAt": "2026-11-13T15:23:06.018461Z"
+      "updatedAt": "2026-11-13T21:29:27.522871Z"
     },
     "NGN": {
       "kind": "parallel",
       "source": "Nigeria black market · NGNRates",
       "buy": 1426.5,
       "sell": 1441.5,
-      "updatedAt": "2026-11-13T15:23:07.844487Z"
+      "updatedAt": "2026-11-13T21:29:29.381054Z"
     },
     "PKR": {
       "kind": "open-market",
       "source": "Pakistan open market · Forex.com.pk",
       "buy": 277.25,
       "sell": 279.55,
-      "updatedAt": "2026-11-13T15:23:08.558093Z"
+      "updatedAt": "2026-11-13T21:29:30.045308Z"
     },
     "SYP": {
       "kind": "street",
       "source": "Syria street · SP Today",
       "buy": 14675.0,
       "sell": 14725.0,
-      "updatedAt": "2026-11-13T15:23:05.924494Z"
+      "updatedAt": "2026-11-13T21:29:27.423437Z"
     }
   }
 }
