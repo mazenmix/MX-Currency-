@@ -1,6 +1,6 @@
 {
   "base": "USD",
-  "updatedAt": "2026-11-18T10:00:23.966034Z",
+  "updatedAt": "2026-11-18T18:47:56.337735Z",
   "rates": {
     "AED": 3.6725,
     "AFN": 65.569445,
@@ -8,7 +8,7 @@
     "AMD": 360.496742,
     "ANG": 1.79,
     "AOA": 929.147823,
-    "ARS": 1595.0,
+    "ARS": 1620.0,
     "AUD": 1.48436,
     "AWG": 1.79,
     "AZN": 1.700728,
@@ -42,10 +42,10 @@
     "DJF": 177.721,
     "DKK": 6.800425,
     "DOP": 60.637513,
-    "DZD": 244.16500000000002,
+    "DZD": 245.0,
     "EGP": 53.717698,
     "ERN": 15.0,
-    "ETB": 191.08,
+    "ETB": 191.15,
     "EUR": 0.909215,
     "FJD": 2.296274,
     "FKP": 0.757555,
@@ -68,8 +68,8 @@
     "ILS": 3.246957,
     "IMP": 0.757555,
     "INR": 93.513494,
-    "IQD": 1702.0,
-    "IRR": 2679000.0,
+    "IQD": 1706.5,
+    "IRR": 2663300.0,
     "ISK": 124.365658,
     "JEP": 0.757555,
     "JMD": 158.61453,
@@ -85,7 +85,7 @@
     "KYD": 0.833333,
     "KZT": 444.34436,
     "LAK": 22344.408775,
-    "LBP": 89300.0,
+    "LBP": 89550.0,
     "LKR": 332.614594,
     "LRD": 169.562219,
     "LSL": 16.929365,
@@ -173,58 +173,58 @@
     "ARS": {
       "kind": "parallel",
       "source": "Argentina Blue · DolarApi",
-      "buy": 1585.0,
-      "sell": 1605.0,
-      "updatedAt": "2026-11-17T20:57:00.000Z"
+      "buy": 1610.0,
+      "sell": 1630.0,
+      "updatedAt": "2026-11-18T17:58:00.000Z"
     },
     "DZD": {
       "kind": "informal",
       "source": "Algiers Square · ExchangeDZ",
-      "buy": 243.0,
-      "sell": 245.33,
-      "updatedAt": "2026-11-18T10:00:22.289290Z"
+      "buy": 243.67,
+      "sell": 246.33,
+      "updatedAt": "2026-11-18T18:47:54.066928Z"
     },
     "ETB": {
       "kind": "parallel",
       "source": "Ethiopia parallel · EBM",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-11-18T10:00:23.966006Z"
+      "updatedAt": "2026-11-18T18:47:56.337709Z"
     },
     "IQD": {
       "kind": "parallel",
       "source": "Baghdad Kifah board · @dollariraqi",
-      "buy": 1702.0,
-      "sell": 1702.0,
-      "updatedAt": "2026-11-18T08:56:42.000Z"
+      "buy": 1706.5,
+      "sell": 1706.5,
+      "updatedAt": "2026-11-18T17:53:35.000Z"
     },
     "IRR": {
       "kind": "free-market",
       "source": "Iran free market · TGJU",
       "buy": null,
       "sell": null,
-      "updatedAt": "2026-11-18T10:00:19.925409Z"
+      "updatedAt": "2026-11-18T18:47:51.472350Z"
     },
     "LBP": {
       "kind": "cash-market",
       "source": "Lebanon cash · LBPRate",
-      "buy": 89100.0,
-      "sell": 89500.0,
-      "updatedAt": "2026-11-18T10:00:20.684668Z"
+      "buy": 89400.0,
+      "sell": 89700.0,
+      "updatedAt": "2026-11-18T18:47:52.365077Z"
     },
     "PKR": {
       "kind": "open-market",
       "source": "Pakistan open market · Forex.com.pk",
       "buy": 277.2,
       "sell": 279.75,
-      "updatedAt": "2026-11-18T10:00:23.428025Z"
+      "updatedAt": "2026-11-18T18:47:55.542579Z"
     },
     "SYP": {
       "kind": "street",
       "source": "Syria street · SP Today",
       "buy": 14975.0,
       "sell": 15025.0,
-      "updatedAt": "2026-11-18T10:00:20.472462Z"
+      "updatedAt": "2026-11-18T18:47:51.981467Z"
     }
   }
 }
